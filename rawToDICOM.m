@@ -18,7 +18,8 @@ pathStruct.newRoot         = 'R:\Henrik Elias\DICOM_test'; % 'R:\Projects'
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
-% adding common_utils which should be in parallell folder to current directory
+% adding functions folder and common_utils which should be in parallell folder to current directory
+addpath('functions\')
 addpath(fullfile(fileparts(pwd), 'common_utils'));
 
 %% 1 - sortRawData
