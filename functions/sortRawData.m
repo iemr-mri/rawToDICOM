@@ -1,8 +1,7 @@
-function sortRawData(project, cohortPath)
+function sortRawData(pathStruct)
     %% sortRawData.mat
-    % project [string] = name of project folder inside R:\DataTransfer from ParaVision
-    % cohortPath [string] = path of folders to cohort
-    % Should be on the form [group]\[cohort] e.g. cohortPath = '\AG_9\cohort1\week43'
+    % Input:
+        % pathStruct: struct containing various path strings for folder structure
 
     % 1) Preparation
     % adds common_utils path and prepares before the loop
@@ -11,12 +10,9 @@ function sortRawData(project, cohortPath)
     %% 1) Preparation
     
     % Data location
-    originalPath = fullfile('R:\DataTransfer from ParaVision', project, cohortPath);
+    originalPath = fullfile(pathStruct.rawRoot, pathStruct.project, pathStruct.cohort);
     disp(['Locating data in ', originalPath])
     disp('-------------------------------')
-
-    newRoot = 'R:\Henrik Elias';
-    %newRoot = 'R:\Preproccessed data from Paravision';
     
     % Struct of the cohort folder (originalPath) that contains each subject
     cohortStruct            = dir(originalPath);
@@ -52,7 +48,7 @@ function sortRawData(project, cohortPath)
                             folderKey = upper(keywords{key});
                         end
 
-                        newPath = fullfile(newRoot, project, folderKey, cohortPath, cohortStruct(subject).name, scan_name);
+                        newPath = fullfile(pathStruct.sortedRoot, pathStruct.project, folderKey, pathStruct.cohort, cohortStruct(subject).name, scan_name);
                         if ~isfile([newPath,'\rawdata.job0']) || ~isfile([newPath,'\acqp'])
                             copyfile(scanFolder, newPath);
                             disp([scan_name, ' copied.'])
