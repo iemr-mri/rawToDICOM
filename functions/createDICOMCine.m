@@ -1,13 +1,12 @@
 function createDICOMCine(pathStruct)
     % Input:
-        % project: name of project files are saved under R:\Projects
-        % subjectPath: path to subject folder
+        % pathStruct: struct containing various path strings for folder structure
 
     %% 1 - Locating all CINE files
     addpath('R:\Felles_PCRTP\functions\BrukerFiles');
     
     % struct with all cine scans for the subject
-    scansCINE       = dir(fullfile(pathStruct.oldRoot, pathStruct.project,'CINE',pathStruct.cohort, pathStruct.subjName));
+    scansCINE       = dir(fullfile(pathStruct.sortedRoot, pathStruct.project,'CINE',pathStruct.cohort, pathStruct.subjName));
     scansCINE       = scansCINE(~ismember({scansCINE.name},{'..', '.'}));
 
     %% 2 - Perform reconstruction and DICOM conversion of each scan
@@ -29,7 +28,7 @@ function createDICOMCine(pathStruct)
         final_im = combineCoils(final_kspace);
     
         %% 2.4 - Convert all scans into DICOM and saving in new root
-        destination = fullfile(pathStruct.newRoot, pathStruct.project, pathStruct.cohort, pathStruct.subjName, 'CINE_DICOM', scansCINE(scan).name);
+        destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, pathStruct.subjName, 'CINE_DICOM', scansCINE(scan).name);
         convertToDICOM(final_im, rawObj, destination)
     end
 

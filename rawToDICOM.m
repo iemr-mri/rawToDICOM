@@ -4,7 +4,7 @@
 
 % Run whole script for the complete pipeline or each section as necessary
 
-%% Preparation module - user set parameters
+%% User set parameters - project and cohort names
 
 % Set up pathStruct for easy navigating
 % Project name - e.g. AGORA
@@ -16,9 +16,11 @@ if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
 end
 
+%% Preparation module - path settings
 % Root paths
-pathStruct.oldRoot         = 'R:\Preprocessed from Paravision';
-pathStruct.newRoot         = 'R:\Projects';
+pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
+pathStruct.sortedRoot         = 'R:\Preprocessed from Paravision';
+pathStruct.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
@@ -38,7 +40,7 @@ sortRawData(pathStruct);
 subjectStruct           = dir(fullfile(pathStruct.oldRoot, pathStruct.project, 'CINE', pathStruct.cohort));
 subjectStruct           = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
 
-%% 2.1 - For each scan
+%% 2.1 - Perfrom operation for each scan
 % Sort kspace into [x, y, slice, frame, MEG, coil]
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
