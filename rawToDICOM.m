@@ -19,7 +19,7 @@ end
 %% Preparation module - path settings
 % Root paths
 pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
-pathStruct.sortedRoot         = 'R:\Preprocessed from Paravision';
+pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
 pathStruct.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
