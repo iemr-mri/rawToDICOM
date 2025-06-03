@@ -18,11 +18,13 @@ function createDICOMCine(pathStruct)
         kspaceSorted    = kspaceSort(rawObj);
     
          %% 2.2 - Performing CS reconstruction if CS file
-        if ismember(imagePath, 'CS_191021')
-            final_kspace = reconstructCS(kspaceSorted);
-        else
+        % if contains(imagePath, 'CS_191021')
+        %     disp('-------------------------------')
+        %     disp(['Reconstructing CS data for ', scansCINE(scan).name])
+        %     final_kspace = reconstructCS(kspaceSorted);
+        % else
             final_kspace = kspaceSorted;
-        end
+        % end
     
         %% 2.3 - Combine coils
         final_im = combineCoils(final_kspace);

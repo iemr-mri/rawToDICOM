@@ -27,7 +27,7 @@ addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
 % adding functions folder and common_utils which should be in parallell folder to current directory
 addpath('functions\')
-addpath(fullfile(fileparts(pwd), 'common_utils'));
+addpath('common_utils\');
 
 %% 1 - sortRawData
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
@@ -37,7 +37,7 @@ sortRawData(pathStruct);
 
 %% 2 - Create DICOM files of CINE images
 % Finds all scans in the CINE folder
-subjectStruct           = dir(fullfile(pathStruct.oldRoot, pathStruct.project, 'CINE', pathStruct.cohort));
+subjectStruct           = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'CINE', pathStruct.cohort));
 subjectStruct           = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
 
 %% 2.1 - Perfrom operation for each scan
@@ -45,7 +45,13 @@ subjectStruct           = subjectStruct(~ismember({subjectStruct.name},{'..', '.
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
-for scan = 1:length(sortedStruct)
-    pathStruct.subjName     = subjectStruct(scan).name;
-    createDICOMCine(pathStruct)
-end
+%for scan = 1:length(subjectStruct)
+pathStruct.subjName     = subjectStruct(1).name;
+disp('-------------------------------')
+disp(['Creating DICOM files for ', pathStruct.subjName])
+createDICOMCine(pathStruct)
+disp('Completed.')
+%end
+
+disp('-------------------------------')
+disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
