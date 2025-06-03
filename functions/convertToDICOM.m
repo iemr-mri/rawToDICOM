@@ -3,20 +3,7 @@ function convertToDICOM(imageData,rawObj,destination)
     % Input:
         % imageData - [xData, yData, slices, frames]
         % rawObj - meta data object with structs
-        % destination - name of destination path
-
-
-    %% Check existence of dir and DICOM file
-    [dirPath]                           = fileparts(destination);
-    % "7" specifically checks if dirPath is a folder
-    if exist(dirPath) ~= 7
-        mkdir(dirPath)
-    end
-    
-    if exist([destination,'.dcm'])
-        disp(['DICOM file ', destination, '.dcm already exist.'])
-        return
-    end
+        % destination - name of destination path 
 
     %% Normalize image
     % Calculate normalization factor to scale maximum intensity to 30,000
@@ -25,27 +12,56 @@ function convertToDICOM(imageData,rawObj,destination)
     Inorm                               = normFactor .* imageData;
     Inorm                               = int16(Inorm);
     
+    % if contains(destination, 'LAX')
+    %     Inorm                           = flip(Inorm,2);
+    % else
+    %     Inorm                           = flip(Inorm,1);
+    % end
+
     %% Initializing DICOM file and info struct
-    dicomwrite(Inorm,[destination,'.dcm'])
+    try 
+        dicomwrite(Inorm,[destination,'.dcm'])
+        
+    catch
+        disp('-----------------')
+        disp(['Problem initializing DICOM file for ', destination, '.'])
+        disp('Possibly corrupted file.')
+        disp('-----------------')
+        return
+    end
     info                                = dicominfo([destination,'.dcm']);
     acqp                                = rawObj.Acqp;
 
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
 
+    %% LAX vs SAX orientation
+    % if contains(destination, 'LAX')
+    %    orientationVector = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
+    %         visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
+    % else
+    %     orientationVector = [visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6),...
+    %         visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3)];
+    % end
+
     %% Geometrical information
-    info.SliceLocation                  = acqp.ACQ_slice_offset;
     info.SliceThickness                 = acqp.ACQ_slice_thick;
+    info.SliceLocation                  = acqp.ACQ_slice_offset;
 
     pixels                              = rawObj.Method.PVM_EncMatrix;
     roFOV                               = acqp.ACQ_fov(1);
     info.PixelSpacing(1, 1)             = roFOV*10/pixels(1);
     info.PixelSpacing(2, 1)             = roFOV*10/pixels(1);
-
-    info.ImageOrientationPatient        = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
+    
+    ImagePos                            = [visuParam.VisuCorePosition(1), visuParam.VisuCorePosition(2), visuParam.VisuCorePosition(3)];
+    orientationVector                   = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
                                            visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
+    
+    info.ImagePositionPatient           = ImagePos(:);
+    info.ImageOrientationPatient        = orientationVector(:);
+
     info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.ImagePositionPatient           = visuParam.VisuCorePosition;
+
     
     %% Multi-frame metadata
     info.NumberOfFrames                 = size(imageData,4);

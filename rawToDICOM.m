@@ -10,7 +10,11 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
+<<<<<<< HEAD
 pathStruct.cohort          = 'AG_9\cohort1\week43';
+=======
+pathStruct.cohort          = '';
+>>>>>>> main
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -18,16 +22,22 @@ end
 
 %% Preparation module - path settings
 % Root paths
+<<<<<<< HEAD
 pathStruct.rawRoot         = 'R:\DataTransfer from ParaVision';
 pathStruct.sortedRoot      = 'R:\Henrik Elias'; % 'R:\Preprocessed from Paravision'
 pathStruct.DICOMRoot       = 'R:\Henrik Elias\DICOM_test'; % 'R:\Projects'
+=======
+pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
+pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
+pathStruct.DICOMRoot          = 'R:\Projects';
+>>>>>>> main
 
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
 % adding functions folder and common_utils which should be in parallell folder to current directory
 addpath('functions\')
-addpath(fullfile(fileparts(pwd), 'common_utils'));
+addpath('helpers\');
 
 %% 1 - sortRawData
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
@@ -37,15 +47,31 @@ sortRawData(pathStruct);
 
 %% 2 - Create DICOM files of CINE images
 % Finds all scans in the CINE folder
+<<<<<<< HEAD
 subjectStruct              = dir(fullfile(pathStruct.oldRoot, pathStruct.project, 'CINE', pathStruct.cohort));
 subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
+=======
+subjectStruct           = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'CINE', pathStruct.cohort));
+subjectStruct           = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
+>>>>>>> main
 
 %% 2.1 - Perfrom operation for each scan
 % Sort kspace into [x, y, slice, frame, MEG, coil]
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
+<<<<<<< HEAD
 %for scan = 1:length(sortedStruct)
     pathStruct.subjName    = subjectStruct(1).name;
+=======
+for scan = 1:length(subjectStruct)
+    pathStruct.subjName     = subjectStruct(scan).name;
+    disp('-------------------------------')
+    disp(['Creating DICOM files for ', pathStruct.subjName])
+>>>>>>> main
     createDICOMCine(pathStruct)
-%end
+    disp('Completed.')
+end
+
+disp('-------------------------------')
+disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])

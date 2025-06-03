@@ -20,10 +20,8 @@ function kspaceCS = reconstructCS(kspace)
     %% CS recon loop
     % Top layer - Slices
     for slice = 1:slices
-        disp(['Reconstructing slice #', num2str(slice)])
         % CS reconstruction is then performed per coil
         for coil = 1:coils
-            disp(['Reconstructing coil #', num2str(coil)])
             % All frames in the slice are ifft into im space
             for v = 1:MEG
                 imTemp(:,:,:,v) = ifft2c(squeeze(kspace(:,:, slice, :, v, coil)));
@@ -86,7 +84,7 @@ function kspaceCS = reconstructCS(kspace)
                     diffIter = diffData(:,iter,v)-diffData(:,iter-1,v);
                     diffIter1st = diffData(:,2,v)-diffData(:,1,v);
                     if abs(diffIter/diffIter1st)<0.01
-                        disp(['Iterations: ', num2str(iter), ', with a final change of : ', diffIter/diffIter1st, ' from initial iteration.'])
+                        disp(['Iterations: ', num2str(iter), ', with a final change of : ', num2str((diffIter/diffIter1st)*100), '% from initial iteration.'])
                         break
                     end
                 end

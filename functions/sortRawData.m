@@ -39,10 +39,10 @@ function sortRawData(pathStruct)
                 acqpStruct = readBrukerParamFile(acqpPath);
                 scan_name = acqpStruct.ACQ_scan_name;
 
-                % If the scan name matches one of the keywords, we perform copy the data into the new folder, sorted by keyword 
+                % If the scan name matches one of the keywords, we copy the data into the new folder, sorted by keyword 
                 for key = 1:length(keywords)
                     if contains(lower(scan_name), lower(keywords(key)))
-                        if contains(keywords(key),'FLASH')
+                        if contains(scan_name,'CS_191021')
                             folderKey = 'CINE';
                         else
                             folderKey = upper(keywords{key});
