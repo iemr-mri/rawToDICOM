@@ -31,14 +31,9 @@ function createDICOMCine(pathStruct)
         kspaceSorted    = kspaceSort(rawObj);
     
          %% 2.2 - Performing CS reconstruction if CS file
-<<<<<<< HEAD
-        % CS files contains the 'CS_191021' string
-        if ismember(imagePath, 'CS_191021')
-=======
         if contains(imagePath, 'CS_191021')
             disp('-------------------------------')
             disp(['Reconstructing CS data for ', scansCINE(scan).name])
->>>>>>> main
             final_kspace = reconstructCS(kspaceSorted);
         else
             final_kspace = kspaceSorted;
@@ -48,10 +43,6 @@ function createDICOMCine(pathStruct)
         final_im = combineCoils(final_kspace);
     
         %% 2.4 - Convert all scans into DICOM and saving in new root
-<<<<<<< HEAD
-        destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, pathStruct.subjName, 'CINE_DICOM', scansCINE(scan).name);
-=======
->>>>>>> main
         convertToDICOM(final_im, rawObj, destination)
     end
 

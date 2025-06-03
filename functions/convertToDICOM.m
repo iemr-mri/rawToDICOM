@@ -21,7 +21,6 @@ function convertToDICOM(imageData,rawObj,destination)
     %% Initializing DICOM file and info struct
     try 
         dicomwrite(Inorm,[destination,'.dcm'])
-        
     catch
         disp('-----------------')
         disp(['Problem initializing DICOM file for ', destination, '.'])
