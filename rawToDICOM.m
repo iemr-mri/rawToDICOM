@@ -8,7 +8,7 @@
 
 % Set up pathStruct for easy navigating
 % Project name - e.g. AGORA
-pathStruct.project         = '';
+pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
 pathStruct.cohort          = '';
 
@@ -27,7 +27,7 @@ addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
 % adding functions folder and common_utils which should be in parallell folder to current directory
 addpath('functions\')
-addpath('common_utils\');
+addpath('helpers\');
 
 %% 1 - sortRawData
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
@@ -45,13 +45,13 @@ subjectStruct           = subjectStruct(~ismember({subjectStruct.name},{'..', '.
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
-%for scan = 1:length(subjectStruct)
-pathStruct.subjName     = subjectStruct(1).name;
-disp('-------------------------------')
-disp(['Creating DICOM files for ', pathStruct.subjName])
-createDICOMCine(pathStruct)
-disp('Completed.')
-%end
+for scan = 1:length(subjectStruct)
+    pathStruct.subjName     = subjectStruct(scan).name;
+    disp('-------------------------------')
+    disp(['Creating DICOM files for ', pathStruct.subjName])
+    createDICOMCine(pathStruct)
+    disp('Completed.')
+end
 
 disp('-------------------------------')
 disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])

@@ -5,18 +5,6 @@ function convertToDICOM(imageData,rawObj,destination)
         % rawObj - meta data object with structs
         % destination - name of destination path 
 
-    %% Check existence of dir and DICOM file
-    [dirPath]                           = fileparts(destination);
-    % "7" specifically checks if dirPath is a folder
-    if exist(dirPath) ~= 7
-        mkdir(dirPath)
-    end
-    
-    if exist([destination,'.dcm'])
-        disp(['DICOM file ', destination, '.dcm already exist.'])
-        return
-    end
-
     %% Normalize image
     % Calculate normalization factor to scale maximum intensity to 30,000
     normFactor                          = 30000/max(imageData,[],'all');
@@ -31,7 +19,16 @@ function convertToDICOM(imageData,rawObj,destination)
     % end
 
     %% Initializing DICOM file and info struct
-    dicomwrite(Inorm,[destination,'.dcm'])
+    try 
+        dicomwrite(Inorm,[destination,'.dcm'])
+        
+    catch
+        disp('-----------------')
+        disp(['Problem initializing DICOM file for ', destination, '.'])
+        disp('Possibly corrupted file.')
+        disp('-----------------')
+        return
+    end
     info                                = dicominfo([destination,'.dcm']);
     acqp                                = rawObj.Acqp;
 
@@ -40,11 +37,11 @@ function convertToDICOM(imageData,rawObj,destination)
 
     %% LAX vs SAX orientation
     % if contains(destination, 'LAX')
-    %    orientationVector = [visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6),...
-    %         visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3)];
-    % else
     %    orientationVector = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
     %         visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
+    % else
+    %     orientationVector = [visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6),...
+    %         visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3)];
     % end
 
     %% Geometrical information
@@ -57,9 +54,9 @@ function convertToDICOM(imageData,rawObj,destination)
     info.PixelSpacing(2, 1)             = roFOV*10/pixels(1);
     
     ImagePos                            = [visuParam.VisuCorePosition(1), visuParam.VisuCorePosition(2), visuParam.VisuCorePosition(3)];
-    orientationVector                   = [-visuParam.VisuCoreOrientation(1), -visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
-                                           -visuParam.VisuCoreOrientation(4), -visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
-
+    orientationVector                   = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
+                                           visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
+    
     info.ImagePositionPatient           = ImagePos(:);
     info.ImageOrientationPatient        = orientationVector(:);
 
