@@ -45,13 +45,13 @@ subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..',
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
-for scan = 1:length(subjectStruct)
-    pathStruct.subjName     = subjectStruct(scan).name;
+%for scan = 1:length(subjectStruct)
+    pathStruct.subjName     = subjectStruct(3).name;
     disp('-------------------------------')
     disp(['Creating DICOM files for ', pathStruct.subjName])
     createDICOMCine(pathStruct)
     disp('Completed.')
-end
+%end
 
 disp('-------------------------------')
 disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])

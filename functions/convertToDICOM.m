@@ -30,6 +30,7 @@ function convertToDICOM(imageData,rawObj,destination)
     end
     info                                = dicominfo([destination,'.dcm']);
     acqp                                = rawObj.Acqp;
+    method                             = rawObj.Method;
 
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
@@ -47,17 +48,29 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SliceThickness                 = acqp.ACQ_slice_thick;
     info.SliceLocation                  = acqp.ACQ_slice_offset;
 
-    pixels                              = rawObj.Method.PVM_EncMatrix;
-    roFOV                               = acqp.ACQ_fov(1);
-    info.PixelSpacing(1, 1)             = roFOV*10/pixels(1);
-    info.PixelSpacing(2, 1)             = roFOV*10/pixels(1);
+    subjPosition                        = visuParam.VisuSubjectPosition;
     
-    ImagePos                            = [visuParam.VisuCorePosition(1), visuParam.VisuCorePosition(2), visuParam.VisuCorePosition(3)];
-    orientationVector                   = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
-                                           visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
+    % Only use second dimension for matrixFOV since CS has half phase steps
+    matrixFOV                           = [visuParam.VisuCoreSize(2), visuParam.VisuCoreSize(2)];
+    sizeFOV                             = visuParam.VisuCoreExtent;
+    spatialResolution                   = sizeFOV ./ matrixFOV;
+    info.PixelSpacing                   = spatialResolution;
     
-    info.ImagePositionPatient           = ImagePos(:);
-    info.ImageOrientationPatient        = orientationVector(:);
+    %voxelResolution                     = [spatialResolution, visuParam.VisuCoreFrameThickness];
+
+    
+    orientationPos                      = visuParam.VisuCorePosition;
+
+    orientationVector                   = visuParam.VisuCoreOrientation;
+    orientationMatrix                   = (reshape(orientationVector, [3,3]));
+    
+    affineMatrix                        = build_affine(orientationMatrix, orientationPos, subjPosition,  spatialResolution(1));
+    
+    [imageMat, imagePos]                = to_matvec(affineMatrix);
+    %imageMat                            = imageMat * inv(diag(spatialResolution(1)*[1;1;1]));
+    imageOrientation                    = imageMat(:);
+    info.ImagePositionPatient           = imagePos;
+    info.ImageOrientationPatient        = imageOrientation(1:6);
 
     info.InPlanePhaseEncodingDirection  = 'ROW';
 
@@ -75,10 +88,8 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SequenceVariant                = 'SP';
     info.MRAcquisitionType              = '2D';
     info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.AcquisitionMatrix              = [0; pixels(1); pixels(1); 0];
-    info.ProtocolName                   = 'SegFLASH';
+    info.AcquisitionMatrix              = [0; spatialResolution(1); spatialResolution(1); 0];
     info.AnatomicalOrientation          = 'QUADRUPED';
-    info.PatientOrientation             = 'F\A';
 
     %% Saving DICOM file with info
     dicomwrite(Inorm,[destination,'.dcm'], info,'CreateMode','Copy');
