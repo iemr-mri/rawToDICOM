@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = '';
+pathStruct.cohort          = 'AG_24\cohort1\week18';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -45,13 +45,13 @@ subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..',
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
-%for scan = 1:length(subjectStruct)
-    pathStruct.subjName     = subjectStruct(3).name;
+for scan = 1:length(subjectStruct)
+    pathStruct.subjName     = subjectStruct(scan).name;
     disp('-------------------------------')
     disp(['Creating DICOM files for ', pathStruct.subjName])
     createDICOMCine(pathStruct)
     disp('Completed.')
-%end
+end
 
 disp('-------------------------------')
 disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])

@@ -4,6 +4,11 @@ function convertToDICOM(imageData,rawObj,destination)
         % imageData - [xData, yData, slices, frames]
         % rawObj - meta data object with structs
         % destination - name of destination path 
+    
+    %% Initializing metadata structs
+    visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
+    acqp                                = rawObj.Acqp;
+    method                              = rawObj.Method;
 
     %% Normalize image
     % Calculate normalization factor to scale maximum intensity to 30,000
@@ -12,10 +17,8 @@ function convertToDICOM(imageData,rawObj,destination)
     Inorm                               = normFactor .* imageData;
     Inorm                               = int16(Inorm);
     
-    % if contains(destination, 'LAX')
+    % if contains(visuParam.VisuAcqSequenceName, 'LAX')
     %     Inorm                           = flip(Inorm,2);
-    % else
-    %     Inorm                           = flip(Inorm,1);
     % end
 
     %% Initializing DICOM file and info struct
@@ -29,45 +32,21 @@ function convertToDICOM(imageData,rawObj,destination)
         return
     end
     info                                = dicominfo([destination,'.dcm']);
-    acqp                                = rawObj.Acqp;
-    method                             = rawObj.Method;
-
-    %% Initializing metadata structs
-    visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
-
-    %% LAX vs SAX orientation
-    % if contains(destination, 'LAX')
-    %    orientationVector = [visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3),...
-    %         visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6)];
-    % else
-    %     orientationVector = [visuParam.VisuCoreOrientation(4), visuParam.VisuCoreOrientation(5), visuParam.VisuCoreOrientation(6),...
-    %         visuParam.VisuCoreOrientation(1), visuParam.VisuCoreOrientation(2), visuParam.VisuCoreOrientation(3)];
-    % end
 
     %% Geometrical information
     info.SliceThickness                 = acqp.ACQ_slice_thick;
     info.SliceLocation                  = acqp.ACQ_slice_offset;
-
-    subjPosition                        = visuParam.VisuSubjectPosition;
     
     % Only use second dimension for matrixFOV since CS has half phase steps
     matrixFOV                           = [visuParam.VisuCoreSize(2), visuParam.VisuCoreSize(2)];
     sizeFOV                             = visuParam.VisuCoreExtent;
     spatialResolution                   = sizeFOV ./ matrixFOV;
-    info.PixelSpacing                   = spatialResolution;
-    
-    %voxelResolution                     = [spatialResolution, visuParam.VisuCoreFrameThickness];
-
-    
-    orientationPos                      = visuParam.VisuCorePosition;
-
-    orientationVector                   = visuParam.VisuCoreOrientation;
-    orientationMatrix                   = (reshape(orientationVector, [3,3]));
-    
-    affineMatrix                        = build_affine(orientationMatrix, orientationPos, subjPosition,  spatialResolution(1));
-    
+    info.PixelSpacing                   = spatialResolution;   
+    %voxelResolution                    = [spatialResolution, visuParam.VisuCoreFrameThickness];
+        
+    affineMatrix                        = build_affine(visuParam, spatialResolution);
     [imageMat, imagePos]                = to_matvec(affineMatrix);
-    %imageMat                            = imageMat * inv(diag(spatialResolution(1)*[1;1;1]));
+    imageMat                            = imageMat * diag((1/spatialResolution(1))*[1;1;1]);
     imageOrientation                    = imageMat(:);
     info.ImagePositionPatient           = imagePos;
     info.ImageOrientationPatient        = imageOrientation(1:6);
@@ -88,7 +67,7 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SequenceVariant                = 'SP';
     info.MRAcquisitionType              = '2D';
     info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.AcquisitionMatrix              = [0; spatialResolution(1); spatialResolution(1); 0];
+    info.AcquisitionMatrix              = [0; spatialResolution(1); spatialResolution(2); 0];
     info.AnatomicalOrientation          = 'QUADRUPED';
 
     %% Saving DICOM file with info

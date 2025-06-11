@@ -1,8 +1,5 @@
 function affine = apply_rotate(matrix, rad)
-    % If angles are not specified, default to 0
-    if nargin < 2
-        rad = [0, 0, 0];
-    end
+
     rad_x = rad(1); rad_y = rad(2); rad_z = rad(3);
     
     % Set up struct for rotation

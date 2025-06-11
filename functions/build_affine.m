@@ -1,33 +1,36 @@
-function affine = build_affine(rmat, pos, subj_pose, resol)
+function affine = build_affine(visuParam, resol)
 % Builds the affine transformation matrix based on different ParaVision parameters.
 % Based on method in https://github.com/BrkRaw/brkraw/blob/main/brkraw/lib/orient.py
 
 % Input:
-%   - rmat: VisuCoreOrientation turned into a 3x3 matrix
-%   - pos: VisuCorePosition
-%   - subj_pose: VisuSubjectPosition
-%   - resol: PixelSpacing
+%   - visuParam
+%   - method
 % Output:
 %   - affine: The transformation matrix containing the corrected VisuCoreOrientation and VisuCorePosition
     
+    subj_pose                    = visuParam.VisuSubjectPosition;
+    
+    slicePos                     = visuParam.VisuCorePosition;
+    orientVector                 = visuParam.VisuCoreOrientation;
+    orientMatrix                 = reshape(orientVector, 3,3)';
+
     %Find slice_orient, the direction where the z-value is the most prevalent
-    orient_order        = get_orient_order(rmat);
-    slice_orient_map    = {'sagital', 'coronal', 'axial'};
-    slice_orient        = slice_orient_map(orient_order(3));
+    orient_order                 = get_orient_order(orientMatrix);
+    slice_orient_map             = {'sagital', 'coronal', 'axial'};
+    slice_orient                 = slice_orient_map(orient_order(3));
 
+    % Convert resolution to diagonal matrix based on slice orientation
+    if ismember(slice_orient, {'axial', 'sagital'})
+        resol                    = diag(resol(1)*[1; 1; 1]);
+    else
+        resol                    = diag(resol(1)*[1; 1; -1]);  % Negate the third diagonal element
+    end
 
-    % % Convert resolution to diagonal matrix based on slice orientation
-    % if ismember(slice_orient, {'axial', 'sagital'})
-    %     resol = diag(resol .* [1; 1; 1]);
-    % else
-    %     resol = diag(resol .* [1; 1; -1]);  % Negate the third diagonal element
-    % end
-    % 
-    % % Combine rotation matrix and resolution
-    % rmat = rmat' .* resol;  % Transpose and multiply
+    % Combine rotation matrix and resolution
+    rmat = orientMatrix' * resol;  % Transpose and multiply
 
     % % Create the affine transformation matrix
-    affine = from_matvec(rmat, pos);
+    affine = from_matvec(rmat, slicePos);
 
      % Adjusting for subject posture
     if ~isempty(subj_pose)
@@ -52,6 +55,11 @@ function affine = build_affine(rmat, pos, subj_pose, resol)
                 error('NotIntegrated: Unknown subject pose.');
         end
     end
-    diag_matrix = diag([-1, 1, 1, 1]);
-    affine = diag_matrix * affine;  % RAS to LPS transformation
+
+    % Base adjustment for all quadripeds
+    affine = apply_rotate(affine, [-pi/2, pi, 0]);
+    
+    % RAS (ParaVision) to LPS (DICOM) transformation
+    diag_matrix = diag([-1, -1, 1, 1]);
+    affine = diag_matrix * affine;  
 end
