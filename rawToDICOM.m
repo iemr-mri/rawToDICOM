@@ -1,7 +1,7 @@
 %% rawToDICOM
 % This is the main script for the pipeline in converting raw Bruker files to DICOM files.
 % This also includes processing CS data.
-
+ 
 % Run whole script for the complete pipeline or each section as necessary
 
 %% User set parameters - project and cohort names
@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort1\week18';
+pathStruct.cohort          = 'AG_24\cohort9\week21';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -18,8 +18,11 @@ end
 
 %% Preparation module - path settings
 % Root paths
+% This is where the raw data is collected
 pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
+% This is where the raw data is sorted into
 pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
+% This is where the DICOM files are saved
 pathStruct.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files

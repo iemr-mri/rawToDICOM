@@ -1,4 +1,4 @@
-function affine = build_affine(visuParam, resol)
+function affine = build_affine(visuParam, method, resol)
 % Builds the affine transformation matrix based on different ParaVision parameters.
 % Based on method in https://github.com/BrkRaw/brkraw/blob/main/brkraw/lib/orient.py
 
@@ -12,13 +12,10 @@ function affine = build_affine(visuParam, resol)
     
     slicePos                     = visuParam.VisuCorePosition;
     orientVector                 = visuParam.VisuCoreOrientation;
-    orientMatrix                 = reshape(orientVector, 3,3)';
+    orientMatrix                 = reshape(orientVector, 3,3);
 
     %Find slice_orient, the direction where the z-value is the most prevalent
-    orient_order                 = get_orient_order(orientMatrix);
-    slice_orient_map             = {'sagital', 'coronal', 'axial'};
-    slice_orient                 = slice_orient_map(orient_order(3));
-
+    slice_orient                 = method.PVM_SPackArrSliceOrient
     % Convert resolution to diagonal matrix based on slice orientation
     if ismember(slice_orient, {'axial', 'sagital'})
         resol                    = diag(resol(1)*[1; 1; 1]);
@@ -27,10 +24,10 @@ function affine = build_affine(visuParam, resol)
     end
 
     % Combine rotation matrix and resolution
-    rmat = orientMatrix' * resol;  % Transpose and multiply
+    orientMatrix = orientMatrix * resol;  % Transpose and multiply
 
-    % % Create the affine transformation matrix
-    affine = from_matvec(rmat, slicePos);
+    % Create the affine transformation matrix
+    affine = from_matvec(orientMatrix, slicePos);
 
      % Adjusting for subject posture
     if ~isempty(subj_pose)
