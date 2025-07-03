@@ -16,7 +16,6 @@ function final_im = imageCorrections(imageData, rawObj, visuParam)
     final_im                            = int16(Inorm);
     
     if contains(visuParam.VisuAcquisitionProtocol, 'LAX')
-        disp('flip LAX')
         final_im                           = rot90(final_im,2);
     end
 

@@ -32,35 +32,16 @@ function convertToDICOM(imageData,rawObj,destination)
     sizeFOV                             = visuParam.VisuCoreExtent;
     spatialResolution                   = sizeFOV ./ matrixFOV;
     info.PixelSpacing                   = spatialResolution;   
-    %voxelResolution                    = [spatialResolution, visuParam.VisuCoreFrameThickness];
-        
+    
+    % Affine matrix transformation
     affineMatrix                        = build_affine(visuParam, method, spatialResolution);
     [imageMat, imagePos]                = to_matvec(affineMatrix);
     imageMat                            = imageMat * diag((1/spatialResolution(1))*[1;1;1]);
     imageOrientation                    = reshape(imageMat,1,[]);
 
-    % sliceGeo                            = method.PVM_SliceGeo;
-    % [imagePos, imageOrientation]        = sliceGeometryParser(sliceGeo);
-
-
     info.ImagePositionPatient           = imagePos;
-
-    % info.ImagePositionPatient           = visuParam.VisuCorePosition(1:3);
-
-    if contains(visuParam.VisuAcquisitionProtocol, 'LAX')
-        %disp('LAX orientation correction.')
-        info.ImageOrientationPatient        = [imageOrientation(1:3),imageOrientation(4:6)];
-    else
-        info.ImageOrientationPatient        = imageOrientation(1:6);
-    end
+    info.ImageOrientationPatient        = imageOrientation(1:6);
     
-
-    % zdir = cross(visuParam.VisuCoreOrientation(1:3),visuParam.VisuCoreOrientation(4:6))';
-    % pos = visuParam.VisuCorePosition(1:3)' + ...
-    %     spatialResolution(1)*visuParam.VisuCoreOrientation(4:6)'+...
-    %     spatialResolution(1)*visuParam.VisuCoreOrientation(1:3)'-...
-    %     acqp.ACQ_slice_thick*zdir;
-
     info.InPlanePhaseEncodingDirection  = 'ROW';
 
     
