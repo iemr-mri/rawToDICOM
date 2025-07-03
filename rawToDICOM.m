@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort9\week 21';
+pathStruct.cohort          = 'AG_24\cohort9\week21';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -38,28 +38,30 @@ addpath('helpers\');
 
 sortRawData(pathStruct);
 
-%% 2 - Create DICOM files of CINE images
+%% 2 - Find CINE files
 % Finds all scans in the CINE folder
 subjectStruct              = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'CINE', pathStruct.cohort));
 subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
 
-if isempty(subjectStruct)
-    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pathStruct.cohort)
-    return
-end
-
-%% 2.1 - Perfrom operation for each scan
+%% 2.1 - Perfrom DICOM conversion for each CINE scan
 % Sort kspace into [x, y, slice, frame, MEG, coil]
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
+if ~isempty(subjectStruct)
 
-for scan = 1:length(subjectStruct)
-    pathStruct.subjName     = subjectStruct(scan).name;
+    for scan = 1:length(subjectStruct)
+        pathStruct.subjName     = subjectStruct(scan).name;
+        disp('-------------------------------')
+        disp(['Creating DICOM files for ', pathStruct.subjName])
+        createDICOMCine(pathStruct)
+        disp('Completed.')
+    end
+ 
     disp('-------------------------------')
-    disp(['Creating DICOM files for ', pathStruct.subjName])
-    createDICOMCine(pathStruct)
-    disp('Completed.')
+    disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
+
+else
+    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pathStruct.cohort)
 end
 
-disp('-------------------------------')
-disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
+%% - Find LGE files

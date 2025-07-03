@@ -28,7 +28,7 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SliceLocation                  = position;
     
     % Only use second dimension for matrixFOV since CS has half phase steps
-    matrixFOV                           = [visuParam.VisuCoreSize(2), visuParam.VisuCoreSize(2)];
+    matrixFOV                           = [size(imageData(1)), size(imageData(2))];
     sizeFOV                             = visuParam.VisuCoreExtent;
     spatialResolution                   = sizeFOV ./ matrixFOV;
     info.PixelSpacing                   = spatialResolution;   
@@ -41,9 +41,6 @@ function convertToDICOM(imageData,rawObj,destination)
 
     info.ImagePositionPatient           = imagePos;
     info.ImageOrientationPatient        = imageOrientation(1:6);
-    
-    info.InPlanePhaseEncodingDirection  = 'ROW';
-
     
     %% Multi-frame metadata
     info.NumberOfFrames                 = size(imageData,4);
@@ -58,8 +55,8 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SequenceVariant                = 'SP';
     info.MRAcquisitionType              = '2D';
     info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.ProtocolName                   = 'SegFLASH';
-    info.AcquisitionMatrix              = [0; 128; 128; 0];
+    info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
+    info.AcquisitionMatrix              = [0; size(imageData(1)); size(imageData(2)); 0];
     info.AnatomicalOrientation          = 'QUADRUPED';
 
     %% Saving DICOM file with info
