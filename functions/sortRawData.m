@@ -18,6 +18,11 @@ function sortRawData(pathStruct)
     cohortStruct            = dir(originalPath);
     cohortStruct            = cohortStruct(~ismember({cohortStruct.name},{'.', '..'}));
 
+    if isempty(cohortStruct)
+        warning('No raw data found for sorting in in %s. Make sure project and cohort name is correct.', originalPath)
+        return
+    end
+
     %What are the protocol name keywords to search for?
     keywords                 = {'FLASH','TPM', 't1', 'MRE', 'LGE', 'tagged', 'CINE'};
     

@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort9\week21';
+pathStruct.cohort          = 'AG_24\cohort9\week 21';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -42,6 +42,11 @@ sortRawData(pathStruct);
 % Finds all scans in the CINE folder
 subjectStruct              = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'CINE', pathStruct.cohort));
 subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
+
+if isempty(subjectStruct)
+    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pathStruct.cohort)
+    return
+end
 
 %% 2.1 - Perfrom operation for each scan
 % Sort kspace into [x, y, slice, frame, MEG, coil]

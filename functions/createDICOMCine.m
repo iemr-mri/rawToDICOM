@@ -31,7 +31,7 @@ function createDICOMCine(pathStruct)
             visuParam       = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
         catch
             warning('rawObj or visuParam not found for %s', imagePath)
-            continue
+            return
         end
         kspaceSorted    = kspaceSort(rawObj);
     
