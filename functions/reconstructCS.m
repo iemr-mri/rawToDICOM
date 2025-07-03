@@ -84,11 +84,11 @@ function kspaceCS = reconstructCS(kspace)
                     diffIter = diffData(:,iter,v)-diffData(:,iter-1,v);
                     diffIter1st = diffData(:,2,v)-diffData(:,1,v);
                     if abs(diffIter/diffIter1st)<0.01
-                        disp(['Iterations: ', num2str(iter), ', with a final change of : ', num2str((diffIter/diffIter1st)*100), '% from initial iteration.'])
                         break
                     end
                 end
             end
+            disp(['Iterations: ', num2str(iter), ', with a final change of : ', num2str((diffIter/diffIter1st)*100), '% from initial iteration.'])
             for v = 1:MEG
                 kspaceCS(:,:,slice,:,v,coil) = fft2c(squeeze(imTemp(:,:,:,v)));
             end

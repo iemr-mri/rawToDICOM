@@ -60,6 +60,7 @@ function sortRawData(pathStruct)
             end
         end
         disp('-------------------------------')
+        fclose('all');
     end
-close all
+
 end
