@@ -10,8 +10,8 @@ function affine = build_affine(visuParam, method, resol)
     
     subj_pose                    = visuParam.VisuSubjectPosition;
     
-    slicePos                     = visuParam.VisuCorePosition;
-    orientVector                 = visuParam.VisuCoreOrientation;
+    slicePos                     = visuParam.VisuCorePosition(1,:);
+    orientVector                 = visuParam.VisuCoreOrientation(1,:);
     orientMatrix                 = reshape(orientVector, 3,3);
 
     %Find slice_orient, the direction where the z-value is the most prevalent

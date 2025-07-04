@@ -1,7 +1,7 @@
 function convertToDICOM(imageData,rawObj,destination)
     % Converts image data (kspace) into DICOM with metainfo from rawObj and saves at a specified destination.
     % Input:
-        % imageData - [xData, yData, slices, frames]
+        % imageData - [xData, yData, (slices), (frames)]
         % rawObj - meta data object with structs
         % destination - name of destination path 
     
@@ -11,16 +11,8 @@ function convertToDICOM(imageData,rawObj,destination)
     method                              = rawObj.Method;
 
     %% Initializing DICOM file and info struct
-    try 
-        dicomwrite(imageData,[destination,'.dcm'])
-    catch
-        disp('-----------------')
-        disp(['Problem initializing DICOM file for ', destination, '.'])
-        disp('Possibly corrupted file.')
-        disp('-----------------')
-        return
-    end
-    info                                = dicominfo([destination,'.dcm']);
+
+    %info                                = dicominfo([destination,'.dcm']);
 
     %% Geometrical information
     info.SliceThickness                 = method.PVM_SliceThick;
@@ -28,7 +20,7 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SliceLocation                  = position;
     
     % Only use second dimension for matrixFOV since CS has half phase steps
-    matrixFOV                           = [size(imageData(1)), size(imageData(2))];
+    matrixFOV                           = [visuParam.VisuCoreSize(1), visuParam.VisuCoreSize(2)];
     sizeFOV                             = visuParam.VisuCoreExtent;
     spatialResolution                   = sizeFOV ./ matrixFOV;
     info.PixelSpacing                   = spatialResolution;   
@@ -56,10 +48,19 @@ function convertToDICOM(imageData,rawObj,destination)
     info.MRAcquisitionType              = '2D';
     info.InPlanePhaseEncodingDirection  = 'ROW';
     info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
-    info.AcquisitionMatrix              = [0; size(imageData(1)); size(imageData(2)); 0];
+    info.AcquisitionMatrix              = [0; size(imageData,1); size(imageData,2); 0];
     info.AnatomicalOrientation          = 'QUADRUPED';
 
     %% Saving DICOM file with info
-    dicomwrite(imageData,[destination,'.dcm'], info,'CreateMode','Copy');
+    %dicomwrite(imageData,[destination,'.dcm'], info,'CreateMode','Copy');
+    try 
+        dicomwrite(imageData,[destination,'.dcm'], info,'CreateMode','Copy', 'MultiframeSingleFile', true);
+    catch
+        disp('-----------------')
+        disp(['Problem initializing DICOM file for ', destination, '.'])
+        disp('Possibly corrupted file.')
+        disp('-----------------')
+        return
+    end
     
 end

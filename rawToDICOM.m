@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort9\week21';
+pathStruct.cohort          = 'MI_9\cohort 1\Week 7';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')
@@ -53,7 +53,7 @@ if ~isempty(subjectStruct)
         pathStruct.subjName     = subjectStruct(scan).name;
         disp('-------------------------------')
         disp(['Creating DICOM files for ', pathStruct.subjName])
-        createDICOMCine(pathStruct)
+        createDICOM(pathStruct, 'CINE')
         disp('Completed.')
     end
  
@@ -61,7 +61,27 @@ if ~isempty(subjectStruct)
     disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
 
 else
-    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pathStruct.cohort)
+    warning('No CINE scans found for %s. Make sure project and cohort name is correct if unexpected.', pathStruct.cohort)
 end
 
 %% - Find LGE files
+% Finds all scans in the LGE folder
+subjectStruct              = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'LGE', pathStruct.cohort));
+subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
+
+if ~isempty(subjectStruct)
+
+    for scan = 1:length(subjectStruct)
+        pathStruct.subjName     = subjectStruct(scan).name;
+        disp('-------------------------------')
+        disp(['Creating DICOM files for ', pathStruct.subjName])
+        createDICOM(pathStruct, 'LGE')
+        disp('Completed.')
+    end
+ 
+    disp('-------------------------------')
+    disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
+
+else
+    warning('No LGE scans found for %s. Make sure project and cohort name is correct if unexpected.', pathStruct.cohort)
+end
