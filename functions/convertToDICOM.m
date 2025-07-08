@@ -26,9 +26,8 @@ function convertToDICOM(imageData,rawObj,destination)
     info.SliceThickness                 = method.PVM_SliceThick;
     position                            = method.PVM_SPackArrSliceOffset;
     info.SliceLocation                  = position;
-    
-    % Only use second dimension for matrixFOV since CS has half phase steps
-    matrixFOV                           = [visuParam.VisuCoreSize(2), visuParam.VisuCoreSize(2)];
+   
+    matrixFOV                           = [size(imageData,1), size(imageData,2)];
     sizeFOV                             = visuParam.VisuCoreExtent;
     spatialResolution                   = sizeFOV ./ matrixFOV;
     info.PixelSpacing                   = spatialResolution;   
