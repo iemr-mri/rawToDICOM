@@ -1,10 +1,12 @@
-function convertToDICOM(imageData,rawObj,destination)
+function convertToDICOM(imagePath,rawObj,destination)
     % Converts image data (kspace) into DICOM with metainfo from rawObj and saves at a specified destination.
     % Input:
         % imageData - [xData, yData, slices, frames]
         % rawObj - meta data object with structs
         % destination - name of destination path 
     
+    data = load(fullfile(imagePath, 'imageData.mat'));
+    imageData = data.final_im;
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
     acqp                                = rawObj.Acqp;
