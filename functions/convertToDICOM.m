@@ -43,9 +43,6 @@ function convertToDICOM(imagePath,rawObj,destination)
     info.ImagePositionPatient           = imagePos;
     info.ImageOrientationPatient        = imageOrientation(1:6);
     
-    info.InPlanePhaseEncodingDirection  = 'ROW';
-
-    
     %% Multi-frame metadata
     info.NumberOfFrames                 = size(imageData,4);
 
@@ -59,7 +56,7 @@ function convertToDICOM(imagePath,rawObj,destination)
     info.SequenceVariant                = 'SP';
     info.MRAcquisitionType              = '2D';
     info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.ProtocolName                   = 'SegFLASH';
+    info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
     info.AcquisitionMatrix              = [0; 128; 128; 0];
     info.AnatomicalOrientation          = 'QUADRUPED';
 
