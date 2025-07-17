@@ -15,8 +15,11 @@ function final_im = imageCorrections(imageData, rawObj, visuParam)
     Inorm                               = normFactor .* imageData;
     final_im                            = int16(Inorm);
     
+    %% LAX orientation fix
     if contains(visuParam.VisuAcquisitionProtocol, 'LAX')
-        final_im                           = rot90(final_im,2);
+        if contains(rawObj.Method.PVM_SPackArrSliceOrient, 'coronal')
+            final_im                           = rot90(final_im,2);
+        end
     end
 
 
