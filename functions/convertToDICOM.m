@@ -14,40 +14,7 @@ function convertToDICOM(imagePath,rawObj,destination)
     method                              = rawObj.Method;
     
     %% Orientation fix
-    % sets a constant k to rotate image k*90 degrees according to metadata
-    % sets a constant f to flip image according to metadata
-    view                                = visuParam.VisuAcquisitionProtocol;
-    readOrient                          = rawObj.Method.PVM_SPackArrReadOrient;
-    k                                   = 0;
-    f                                = false;
 
-    if contains(view, 'LAX')
-        if contains(readOrient, 'H_F')
-            k = 2;
-        end
-        if contains(readOrient, 'A_P')
-            k = 1;
-        end
-        if contains(readOrient, 'L_R')
-            k = 1;
-        end
-    end
-    if contains(view, 'CS_191021')
-        if contains(readOrient, 'A_P')
-            k = 2;
-        end
-        if contains(readOrient, 'L_R')
-            k = 1;
-            f = true;
-        end
-    end
-    
-    if k ~= 0
-        imageData                           = rot90(imageData,k);
-        if f == true
-            imageData                       = flip(imageData,2);
-        end
-    end
 
     %% Initializing DICOM file and info struct    
     try 
