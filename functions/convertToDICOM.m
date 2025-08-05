@@ -14,7 +14,7 @@ function convertToDICOM(imagePath,rawObj,destination)
     method                              = rawObj.Method;
     
     %% Orientation fix
-
+    imageData = orientRotation(imageData, rawObj, visuParam);
 
     %% Initializing DICOM file and info struct    
     try 
