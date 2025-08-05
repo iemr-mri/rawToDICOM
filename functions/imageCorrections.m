@@ -6,21 +6,14 @@ function final_im = imageCorrections(imageData, rawObj, visuParam)
     offset_pixels                       = (offset_mm/10)/resolution;
 
     im_shifted                          = circshift(imageData, -round(offset_pixels), 2); 
-    imageData                           = im_shifted;
+    imageData                            = im_shifted;
 
     %% Normalize image
     % Calculate normalization factor to scale maximum intensity to 30,000
     normFactor                          = 30000/max(imageData,[],'all');
     % Normalize image data
     Inorm                               = normFactor .* imageData;
-    final_im                            = int16(Inorm);
-    
-    %% LAX orientation fix
-    if contains(visuParam.VisuAcquisitionProtocol, 'LAX')
-        if contains(rawObj.Method.PVM_SPackArrSliceOrient, 'coronal')
-            final_im                           = rot90(final_im,2);
-        end
-    end
+    imageData                            = int16(Inorm);
 
-
+    final_im = imageData;
 end

@@ -7,12 +7,42 @@ function convertToDICOM(imagePath,rawObj,destination)
     
     data = load(fullfile(imagePath, 'imageData.mat'));
     imageData = data.final_im;
+    
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
     acqp                                = rawObj.Acqp;
     method                              = rawObj.Method;
+    
+    %% Orientation fix
+    % sets a constant k to rotate image k*90 degrees according to meta data
+    view                                = visuParam.VisuAcquisitionProtocol;
+    %sliceOrient                         = rawObj.Method.PVM_SPackArrSliceOrient;
+    readOrient                          = rawObj.Method.PVM_SPackArrReadOrient;
+    k                                   = 0;
 
-    %% Initializing DICOM file and info struct
+    if contains(view, 'LAX')
+        if contains(readOrient, 'H_F')
+            k = 2;
+        end
+        if contains(readOrient, 'A_P')
+            k = 1;
+        end
+    end
+
+    if contains(view, 'segFLASH')
+        if contains(readOrient, 'A_P')
+            k = 2;
+        end
+        if contains(readOrient, 'L_R')
+            k = 1;
+        end
+    end
+    
+    if k ~= 0
+        imageData                           = rot90(imageData,k);
+    end
+
+    %% Initializing DICOM file and info struct    
     try 
         dicomwrite(imageData,[destination,'.dcm'])
     catch

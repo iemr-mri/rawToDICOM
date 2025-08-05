@@ -12,7 +12,7 @@ function createDICOMCine(pathStruct)
     %% 2 - Perform reconstruction and DICOM conversion of each scan
     for scan = 1:length(scansCINE)
         %% 2.1 Check existence of dir and DICOM file
-        destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, pathStruct.subjName, 'CINE_DICOM', scansCINE(scan).name);
+        destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, 'CINE_DICOM', pathStruct.subjName, scansCINE(scan).name);
         [dirPath]                           = fileparts(destination);
         % "7" specifically checks if dirPath is a folder
         if exist(dirPath) ~= 7
@@ -50,7 +50,7 @@ function createDICOMCine(pathStruct)
         
             %% 2.5 - Combine coils
             combined_im = combineCoils(final_kspace);
-    
+
             %% 2.6 - Image corrections
             final_im    = imageCorrections(combined_im, rawObj, visuParam);
     
