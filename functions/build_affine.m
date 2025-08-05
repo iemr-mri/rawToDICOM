@@ -17,7 +17,7 @@ function affine = build_affine(visuParam, method, resol)
     %Find slice_orient, the direction where the z-value is the most prevalent
     slice_orient                 = method.PVM_SPackArrSliceOrient;
     % Convert resolution to diagonal matrix based on slice orientation
-    if ismember(slice_orient, {'axial', 'sagital'})
+    if ismember(slice_orient, {'axial', 'sagittal'})
         resol                    = diag(resol(1)*[1; 1; 1]);
     else
         resol                    = diag(resol(1)*[1; 1; -1]);  % Negate the third diagonal element

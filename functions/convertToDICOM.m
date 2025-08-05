@@ -14,11 +14,12 @@ function convertToDICOM(imagePath,rawObj,destination)
     method                              = rawObj.Method;
     
     %% Orientation fix
-    % sets a constant k to rotate image k*90 degrees according to meta data
+    % sets a constant k to rotate image k*90 degrees according to metadata
+    % sets a constant f to flip image according to metadata
     view                                = visuParam.VisuAcquisitionProtocol;
-    %sliceOrient                         = rawObj.Method.PVM_SPackArrSliceOrient;
     readOrient                          = rawObj.Method.PVM_SPackArrReadOrient;
     k                                   = 0;
+    f                                = false;
 
     if contains(view, 'LAX')
         if contains(readOrient, 'H_F')
@@ -27,19 +28,25 @@ function convertToDICOM(imagePath,rawObj,destination)
         if contains(readOrient, 'A_P')
             k = 1;
         end
+        if contains(readOrient, 'L_R')
+            k = 1;
+        end
     end
-
-    if contains(view, 'segFLASH')
+    if contains(view, 'CS_191021')
         if contains(readOrient, 'A_P')
             k = 2;
         end
         if contains(readOrient, 'L_R')
             k = 1;
+            f = true;
         end
     end
     
     if k ~= 0
         imageData                           = rot90(imageData,k);
+        if f == true
+            imageData                       = flip(imageData,2);
+        end
     end
 
     %% Initializing DICOM file and info struct    
@@ -64,14 +71,8 @@ function convertToDICOM(imagePath,rawObj,destination)
     spatialResolution                   = sizeFOV ./ matrixFOV;
     info.PixelSpacing                   = spatialResolution;   
     
-    % Affine matrix transformation
-    affineMatrix                        = build_affine(visuParam, method, spatialResolution);
-    [imageMat, imagePos]                = to_matvec(affineMatrix);
-    imageMat                            = imageMat * diag((1/spatialResolution(1))*[1;1;1]);
-    imageOrientation                    = reshape(imageMat,1,[]);
-
-    info.ImagePositionPatient           = imagePos;
-    info.ImageOrientationPatient        = imageOrientation(1:6);
+    info.ImagePositionPatient           = visuParam.VisuCorePosition(1:3);
+    info.ImageOrientationPatient        = visuParam.VisuCoreOrientation(1:6);
     
     %% Multi-frame metadata
     info.NumberOfFrames                 = size(imageData,4);
