@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'MI_9\cohort 1\Week 7';
+pathStruct.cohort          = 'MI_9\cohort 2\Week 14';
 
 if isempty(pathStruct.project) || isempty(pathStruct.cohort)
     error('Please make sure to fill out project field and cohort field correctly before proceeding.')

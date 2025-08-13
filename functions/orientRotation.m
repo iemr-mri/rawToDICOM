@@ -16,6 +16,7 @@ function rotIm = orientRotation(imageData,rawObj, visuParam)
 
         if contains(readOrient, 'A_P')
             k = 1;
+            f = 2;
         end
     end
 
