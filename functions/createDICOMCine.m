@@ -30,7 +30,7 @@ function createDICOMCine(pathStruct)
             visuParam       = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
         catch
             warning('rawObj or visuParam not found for %s', imagePath)
-            return
+            continue
         end
         
         %% 2.2 Check existence of .mat file
