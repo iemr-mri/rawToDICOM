@@ -16,11 +16,17 @@ function convertToDICOM(imagePath,rawObj,destination)
     %% Orientation fix
     imageData = orientRotation(imageData, rawObj, visuParam);
 
-    %% Initializing DICOM file and info struct
+    %% Sorting slices in correct order if slice
     sliceNum = size(imageData,3);
+    
+    if sliceNum > 1
+        imageData = sliceShuffler(imageData, method);
+    end
 
+    %% Making DICOM files per slice in imageData
     for slice=1:sliceNum
-
+        
+        %% Initializing file and metadata
         try 
             dicomwrite(imageData(:,:,slice,:),[destination,'.dcm'])
         catch

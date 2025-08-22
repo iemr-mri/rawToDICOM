@@ -8,22 +8,18 @@
 
 % Set up pathStruct for easy navigating
 % Project name - e.g. AGORA
-pathStruct.project         = 'AGORA';
+pathStruct.project         = 'HCM';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort5\week23';
-
-if isempty(pathStruct.project) || isempty(pathStruct.cohort)
-    error('Please make sure to fill out project field and cohort field correctly before proceeding.')
-end
+pathStruct.cohort          = '';
 
 %% Preparation module - path settings
 % Root paths
 % This is where the raw data is collected
-pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
+pathStruct.rawRoot            = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\raw';
 % This is where the raw data is sorted into
-pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
+pathStruct.sortedRoot         = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\sorted';
 % This is where the DICOM files are saved
-pathStruct.DICOMRoot          = 'R:\Projects';
+pathStruct.DICOMRoot          = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\dicom';
 
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
