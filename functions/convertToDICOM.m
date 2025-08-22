@@ -16,49 +16,54 @@ function convertToDICOM(imagePath,rawObj,destination)
     %% Orientation fix
     imageData = orientRotation(imageData, rawObj, visuParam);
 
-    %% Initializing DICOM file and info struct    
-    try 
-        dicomwrite(imageData,[destination,'.dcm'])
-    catch
-        disp('-----------------')
-        disp(['Problem initializing DICOM file for ', destination, '.'])
-        disp('Possibly corrupted file.')
-        disp('-----------------')
-        return
+    %% Initializing DICOM file and info struct
+    sliceNum = size(imageData,3);
+
+    for slice=1:sliceNum
+
+        try 
+            dicomwrite(imageData(:,:,slice,:),[destination,'.dcm'])
+        catch
+            disp('-----------------')
+            disp(['Problem initializing DICOM file for ', destination, '.'])
+            disp('Possibly corrupted file.')
+            disp('-----------------')
+            return
+        end
+        info                                = dicominfo([destination,'.dcm']);
+    
+        %% Geometrical information
+        info.SliceThickness                 = method.PVM_SliceThick;
+        position                            = method.PVM_SPackArrSliceOffset(slice);
+        info.SliceLocation                  = position;
+       
+        matrixFOV                           = [size(imageData,1), size(imageData,2)];
+        sizeFOV                             = visuParam.VisuCoreExtent;
+        spatialResolution                   = sizeFOV ./ matrixFOV;
+        info.PixelSpacing                   = spatialResolution;   
+        
+        info.ImagePositionPatient           = visuParam.VisuCorePosition(slice,1:3);
+        info.ImageOrientationPatient        = visuParam.VisuCoreOrientation(slice,1:6);
+        
+        %% Multi-frame metadata
+        info.NumberOfFrames                 = size(imageData,4);
+    
+        %% General metadata
+        info.PatientID                      = visuParam.VisuSubjectId;
+        info.PatientName.FamilyName         = visuParam.VisuSubjectId;
+        info.HeartRate                      = 60/((acqp.ACQ_repetition_time)/1000); % estimation
+        info.ImageType                      = 'ORIGINAL\PRIMARY\OTHER';
+        info.Modality                       = 'MR';
+        info.ScanningSequence               = 'RM\GR';
+        info.SequenceVariant                = 'SP';
+        info.MRAcquisitionType              = '2D';
+        info.InPlanePhaseEncodingDirection  = 'ROW';
+        info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
+        info.AcquisitionMatrix              = [0; 128; 128; 0];
+        info.AnatomicalOrientation          = 'QUADRUPED';
+    
+        %% Saving DICOM file with info
+        dicomwrite(imageData(:,:,slice,:),[destination,'.dcm'], info,'CreateMode','Copy');
+        
     end
-    info                                = dicominfo([destination,'.dcm']);
-
-    %% Geometrical information
-    info.SliceThickness                 = method.PVM_SliceThick;
-    position                            = method.PVM_SPackArrSliceOffset;
-    info.SliceLocation                  = position;
-   
-    matrixFOV                           = [size(imageData,1), size(imageData,2)];
-    sizeFOV                             = visuParam.VisuCoreExtent;
-    spatialResolution                   = sizeFOV ./ matrixFOV;
-    info.PixelSpacing                   = spatialResolution;   
-    
-    info.ImagePositionPatient           = visuParam.VisuCorePosition(1:3);
-    info.ImageOrientationPatient        = visuParam.VisuCoreOrientation(1:6);
-    
-    %% Multi-frame metadata
-    info.NumberOfFrames                 = size(imageData,4);
-
-    %% General metadata
-    info.PatientID                      = visuParam.VisuSubjectId;
-    info.PatientName.FamilyName         = visuParam.VisuSubjectId;
-    info.HeartRate                      = 60/((acqp.ACQ_repetition_time)/1000); % estimation
-    info.ImageType                      = 'ORIGINAL\PRIMARY\OTHER';
-    info.Modality                       = 'MR';
-    info.ScanningSequence               = 'RM\GR';
-    info.SequenceVariant                = 'SP';
-    info.MRAcquisitionType              = '2D';
-    info.InPlanePhaseEncodingDirection  = 'ROW';
-    info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
-    info.AcquisitionMatrix              = [0; 128; 128; 0];
-    info.AnatomicalOrientation          = 'QUADRUPED';
-
-    %% Saving DICOM file with info
-    dicomwrite(imageData,[destination,'.dcm'], info,'CreateMode','Copy');
-    
 end
