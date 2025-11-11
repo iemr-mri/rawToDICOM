@@ -12,9 +12,6 @@ function convertToDICOM(imagePath,rawObj,destination)
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
     acqp                                = rawObj.Acqp;
     method                              = rawObj.Method;
-    
-    %% Orientation fix
-    imageData = orientRotation(imageData, rawObj, visuParam);
 
     %% Sorting slices in correct order if slice
     sliceNum = size(imageData,3);
@@ -26,21 +23,33 @@ function convertToDICOM(imagePath,rawObj,destination)
     %% Making DICOM files per slice in imageData
     for slice=1:sliceNum
         
+
+        %% Orientation fix
+        sliceData = orientRotation(imageData(:,:,slice,:), rawObj, visuParam);
+
+        %% Filename
+        if sliceNum > 1
+            sliceName                           = append(destination, '_', num2str(slice));
+        else 
+            sliceName                          = destination;
+        end
+
+        
         %% Initializing file and metadata
         try 
-            dicomwrite(imageData(:,:,slice,:),[destination,'.dcm'])
+            dicomwrite(sliceData,[sliceName,'.dcm'])
         catch
             disp('-----------------')
-            disp(['Problem initializing DICOM file for ', destination, '.'])
+            disp(['Problem initializing DICOM file for ', sliceName, '.'])
             disp('Possibly corrupted file.')
             disp('-----------------')
-            return
+            continue
         end
-        info                                = dicominfo([destination,'.dcm']);
+        info                                = dicominfo([sliceName,'.dcm']);
     
         %% Geometrical information
         info.SliceThickness                 = method.PVM_SliceThick;
-        position                            = method.PVM_SPackArrSliceOffset(slice);
+        position                            = method.PVM_EffSliceOffset(slice);
         info.SliceLocation                  = position;
        
         matrixFOV                           = [size(imageData,1), size(imageData,2)];
@@ -52,7 +61,7 @@ function convertToDICOM(imagePath,rawObj,destination)
         info.ImageOrientationPatient        = visuParam.VisuCoreOrientation(slice,1:6);
         
         %% Multi-frame metadata
-        info.NumberOfFrames                 = size(imageData,4);
+        info.NumberOfFrames                 = size(sliceData,4);
     
         %% General metadata
         info.PatientID                      = visuParam.VisuSubjectId;
@@ -69,7 +78,7 @@ function convertToDICOM(imagePath,rawObj,destination)
         info.AnatomicalOrientation          = 'QUADRUPED';
     
         %% Saving DICOM file with info
-        dicomwrite(imageData(:,:,slice,:),[destination,'.dcm'], info,'CreateMode','Copy');
+        dicomwrite(sliceData,[sliceName,'.dcm'], info,'CreateMode','Copy');
         
     end
 end

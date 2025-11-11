@@ -13,7 +13,7 @@ function final_im = imageCorrections(imageData, rawObj, visuParam)
     normFactor                          = 30000/max(imageData,[],'all');
     % Normalize image data
     Inorm                               = normFactor .* imageData;
-    imageData                            = int16(Inorm);
+    imageData                           = int16(Inorm);
 
     final_im = imageData;
 end
