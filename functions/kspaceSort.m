@@ -13,7 +13,7 @@ function kspaceSorted = kspaceSort(rawObj)
     xData       = rawObj.Method.PVM_EncMatrix(1);
     yData       = rawObj.Method.PVM_EncMatrix(2);
     flowEncDir  = 1; % number of flow encoding directions
-    slices      = rawObj.Method.PVM_SPackArrNSlices; % number of slices (1 for SegFLASH)
+    slices      = rawObj.Method.PVM_SPackArrNSlices;
     coils       = rawObj.Method.PVM_EncNReceivers;
 
     
@@ -34,7 +34,7 @@ function kspaceSorted = kspaceSort(rawObj)
                     for t = 1:movieFrames
                         for c=1:coils
                             kspace_us(:,CSPhaseEncList(count), k, t, v, c)  = kspaceRaw(:,count_withCoil); % [x, y, slices, movieFrames, flowEncDir, coils]
-                            count_withCoil                                   = count_withCoil + 1;
+                            count_withCoil                                  = count_withCoil + 1;
                         end
                         count = count+1;
                     end
@@ -47,4 +47,15 @@ function kspaceSorted = kspaceSort(rawObj)
     else
         kspaceSorted    = kspace;
     end
+
+    %% 3) Zero-fill partial echo
+    if rawObj.Method.PVM_EncPft(1) > 1
+        partialStart                           = round(xData*(rawObj.Method.PVM_EncPft(1) - 1)) + 1; % the starting index of the echo
+        kspaceZero                             = zeros(round(xData*rawObj.Method.PVM_EncPft(1)), yData, slices, movieFrames, flowEncDir, coils);
+
+        kspaceZero(partialStart:end,:,:,:,:,:) = kspaceSorted; % Put our kspace from step 2 into the zero-filled matrix
+        
+        kspaceSorted                           = kspaceZero;   % redefine kspaceSorted for function return
+    end
+
 end

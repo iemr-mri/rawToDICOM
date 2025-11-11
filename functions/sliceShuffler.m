@@ -1,4 +1,4 @@
-function [shuffledData] = sliceShuffler(imageData, method)
+function [shuffledData] = sliceShuffler(imageData)
 % Shuffles dataset containing multiple slices so they are ordered correctly
 % One would think there is a slice order list in the metadata, but I have not found it
     

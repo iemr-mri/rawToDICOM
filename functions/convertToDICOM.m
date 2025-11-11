@@ -17,7 +17,7 @@ function convertToDICOM(imagePath,rawObj,destination)
     sliceNum = size(imageData,3);
     
     if sliceNum > 1
-        imageData = sliceShuffler(imageData, method);
+        imageData = sliceShuffler(imageData);
     end
 
     %% Making DICOM files per slice in imageData
@@ -52,7 +52,7 @@ function convertToDICOM(imagePath,rawObj,destination)
         position                            = method.PVM_EffSliceOffset(slice);
         info.SliceLocation                  = position;
        
-        matrixFOV                           = [size(imageData,1), size(imageData,2)];
+        matrixFOV                           = [method.PVM_DefMatrix(1), method.PVM_DefMatrix(2)]; % seems to be only parameter that is consistent for both CS undersampled images and partial echo images
         sizeFOV                             = visuParam.VisuCoreExtent;
         spatialResolution                   = sizeFOV ./ matrixFOV;
         info.PixelSpacing                   = spatialResolution;   
@@ -74,7 +74,7 @@ function convertToDICOM(imagePath,rawObj,destination)
         info.MRAcquisitionType              = '2D';
         info.InPlanePhaseEncodingDirection  = 'ROW';
         info.ProtocolName                   = visuParam.VisuAcquisitionProtocol;
-        info.AcquisitionMatrix              = [0; 128; 128; 0];
+        info.AcquisitionMatrix              = [0; matrixFOV(1); matrixFOV(2); 0];
         info.AnatomicalOrientation          = 'QUADRUPED';
     
         %% Saving DICOM file with info
