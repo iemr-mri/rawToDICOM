@@ -25,7 +25,7 @@ function convertToDICOM(imagePath,rawObj,destination)
         
 
         %% Orientation fix
-        sliceData = orientRotation(imageData(:,:,slice,:), rawObj, visuParam);
+        sliceData = orientRotation(imageData(:,:,slice,:), rawObj);
 
         %% Filename
         if sliceNum > 1
