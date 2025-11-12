@@ -15,11 +15,11 @@ pathStruct.cohort          = '';
 %% Preparation module - path settings
 % Root paths
 % This is where the raw data is collected
-pathStruct.rawRoot            = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\raw';
+pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
 % This is where the raw data is sorted into
-pathStruct.sortedRoot         = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\sorted';
+pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
 % This is where the DICOM files are saved
-pathStruct.DICOMRoot          = 'C:\Users\heskalde\OneDrive - Universitetet i Oslo\Dokumenter\Mice data\dicom';
+pathStruct.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
