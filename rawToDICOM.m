@@ -24,7 +24,7 @@ pathStruct.DICOMRoot          = 'R:\Projects';
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
-% adding functions folder and common_utils which should be in parallell folder to current directory
+% adding functions/helpers folders which is in the same directory as this file
 addpath('functions\')
 addpath('helpers\');
 
@@ -44,7 +44,7 @@ if isempty(subjectStruct)
     return
 end
 
-%% 2.1 - Perfrom operation for each scan
+%% 2.1 - Perfom operation for each scan
 % Sort kspace into [x, y, slice, frame, MEG, coil]
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
