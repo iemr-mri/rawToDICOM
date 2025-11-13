@@ -1,4 +1,4 @@
-function rotIm = orientRotation(imageData,rawObj, visuParam)
+function rotIm = orientRotation(imageData,rawObj)
     % Rotates and flips the image matrix according to geometry data from the method file
 
     % Should be one of H_F, A_P or L_R

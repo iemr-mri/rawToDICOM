@@ -10,7 +10,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_16\cohort2\week23';
+pathStruct.cohort          = '';
 
 %% Preparation module - path settings
 % Root paths
