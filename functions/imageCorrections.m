@@ -1,4 +1,4 @@
-function final_im = imageCorrections(imageData, rawObj, visuParam)    
+function final_im = imageCorrections(imageData, rawObj)    
     
     %% Fixing offset in phase direction
     resolution                          = rawObj.Method.PVM_FovCm(1)/rawObj.Method.PVM_DefMatrix(1); % in cm/pixels

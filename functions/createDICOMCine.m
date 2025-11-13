@@ -15,11 +15,11 @@ function createDICOMCine(pathStruct)
         destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, 'CINE_DICOM', pathStruct.subjName, scansCINE(scan).name);
         [dirPath]                           = fileparts(destination);
         % "7" specifically checks if dirPath is a folder
-        if exist(dirPath) ~= 7
+        if exist(dirPath, 'dir') ~= 7
             mkdir(dirPath)
         end
         
-        if exist([destination,'.dcm'])
+        if exist([destination,'.dcm'], 'file')
             disp(['DICOM file ', destination, '.dcm already exist.'])
             continue
         end
@@ -34,7 +34,7 @@ function createDICOMCine(pathStruct)
         end
         
         %% 2.2 Check existence of .mat file
-        if ~exist(fullfile(imagePath, 'imageData.mat'))
+        if ~exist(fullfile(imagePath, 'imageData.mat'), 'file')
 
             %% 2.3 - Rearrange kspace data to [x, y, slices, movieFrames, flowEncDir, coils]
             kspaceSorted    = kspaceSort(rawObj);
@@ -52,7 +52,7 @@ function createDICOMCine(pathStruct)
             combined_im = combineCoils(final_kspace);
 
             %% 2.6 - Image corrections
-            final_im    = imageCorrections(combined_im, rawObj, visuParam);
+            final_im    = imageCorrections(combined_im, rawObj);
     
             %% 2.7 - Save image data
             save(fullfile(imagePath, 'imageData.mat'), "final_im")
