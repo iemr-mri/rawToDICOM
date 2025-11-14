@@ -36,16 +36,16 @@ function convertToDICOM(imagePath,rawObj,destination)
 
         
         %% Initializing file and metadata
-        try 
-            dicomwrite(sliceData,[sliceName,'.dcm'])
-        catch
-            disp('-----------------')
-            disp(['Problem initializing DICOM file for ', sliceName, '.'])
-            disp('Possibly corrupted file.')
-            disp('-----------------')
+        try
+            dicomwrite(sliceData, [sliceName, '.dcm']);
+        catch ME
+            fprintf('-----------------\n');
+            fprintf('Problem initializing DICOM file for %s.\n', sliceName);
+            fprintf('Error: %s\n', ME.message);
+            fprintf('-----------------\n');
             continue
         end
-        info                                = dicominfo([sliceName,'.dcm']);
+
     
         %% Geometrical information
         info.SliceThickness                 = method.PVM_SliceThick;

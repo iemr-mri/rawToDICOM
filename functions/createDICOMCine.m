@@ -28,8 +28,9 @@ function createDICOMCine(pathStruct)
         try
             rawObj          = RawDataObject(imagePath, 'dataPrecision', 'double');
             visuParam       = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
-        catch
+        catch ME
             warning('rawObj or visuParam not found for %s', imagePath)
+            fprintf('Error: %s\n', ME.message);
             continue
         end
         
