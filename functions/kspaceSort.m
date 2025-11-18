@@ -16,8 +16,6 @@ function kspaceSorted = kspaceSort(rawObj)
     slices      = rawObj.Method.PVM_SPackArrNSlices;
     coils       = rawObj.Method.PVM_EncNReceivers;
 
-    
-
     kspace      = reshape(kspaceRaw, [xData , coils, movieFrames, yData, slices, flowEncDir]);
     kspace      = permute(kspace,[1 4 5 3 6 2]); % [x, y, slices, movieFrames, flowEncDir, coils]
     

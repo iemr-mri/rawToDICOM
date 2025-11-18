@@ -8,7 +8,7 @@
 
 % Set up pathStruct for easy navigating
 % Project name - e.g. AGORA
-pathStruct.project         = 'AGORA';
+pathStruct.project         = '';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
 pathStruct.cohort          = '';
 

@@ -27,10 +27,8 @@ function createDICOMCine(pathStruct)
         imagePath       = fullfile(scansCINE(scan).folder,scansCINE(scan).name);
         try
             rawObj          = RawDataObject(imagePath, 'dataPrecision', 'double');
-            visuParam       = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
-        catch ME
-            warning('rawObj or visuParam not found for %s', imagePath)
-            fprintf('Error: %s\n', ME.message);
+        catch
+            warning('rawObj not found for %s', imagePath)
             continue
         end
         
@@ -38,7 +36,13 @@ function createDICOMCine(pathStruct)
         if ~exist(fullfile(imagePath, 'imageData.mat'), 'file')
 
             %% 2.3 - Rearrange kspace data to [x, y, slices, movieFrames, flowEncDir, coils]
-            kspaceSorted    = kspaceSort(rawObj);
+            try
+                kspaceSorted    = kspaceSort(rawObj);
+            catch ME
+                warning('Problem with kspace for %s', imagePath)
+                fprintf('Error: %s\n', ME.message);
+                continue
+            end
         
              %% 2.4 - Performing CS reconstruction if CS file
             if contains(imagePath, 'CS_191021')
