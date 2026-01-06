@@ -11,9 +11,9 @@
 
 % Set up pathStruct for easy navigating
 % Project name - e.g. AGORA
-pathStruct.project         = '';
+pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = '';
+pathStruct.cohort          = 'AG_24\cohort1\week51';
 
 %% Preparation module - path settings
 % Root paths
@@ -28,8 +28,9 @@ pathStruct.DICOMRoot          = 'R:\Projects';
 addpath('R:\Felles_PCRTP\functions\BrukerFiles');
 
 % adding functions/helpers folders which is in the same directory as this file
-addpath('functions\')
+addpath('functions\');
 addpath('helpers\');
+addpath('SG');
 
 %% 1 - sortRawData
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
