@@ -1,6 +1,9 @@
 %% rawToDICOM
 % This is the main script for the pipeline in converting raw Bruker files to DICOM files.
-% This also includes processing CS data.
+% This also includes processing
+    % Compressed sensing
+    % Self gated images
+    % Partial echo
  
 % Run whole script for the complete pipeline or each section as necessary
 
