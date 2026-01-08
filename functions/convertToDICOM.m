@@ -6,7 +6,8 @@ function convertToDICOM(imagePath,rawObj,destination)
         % destination - name of destination path 
     
     data = load(fullfile(imagePath, 'imageData.mat'));
-    imageData = data.final_im;
+    imageData = data.imageData;
+    imageData = int16(imageData);
     
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));
@@ -53,7 +54,18 @@ function convertToDICOM(imagePath,rawObj,destination)
         position                            = method.PVM_EffSliceOffset(slice);
         info.SliceLocation                  = position;
        
-        matrixFOV                           = [method.PVM_DefMatrix(1), method.PVM_DefMatrix(2)]; % seems to be only parameter that is consistent for both CS undersampled images and partial echo images
+        % matrixFOV                           = method.PVM_EncMatrix;
+        % matrixFOV(1)                        = matrixFOV(1)*method.PVM_EncPft(1); %partial echo adjustment
+        % if isfield(rawObj.Method, "CSPhaseEncList")
+        %     matrixFOV(2)                        = matrixFOV(2)*method.CSacceleration; % compressed sensing adjustment
+        % end
+        % imageSize                           = [size(imageData,1), size(imageData,2)];
+        % if isequal(imageSize, 2*matrixFOV)
+        %     matrixFOV = imageSize;
+        % end
+
+        imageSize                           = [size(imageData,1), size(imageData,2)];
+        matrixFOV                           = imageSize;
         sizeFOV                             = visuParam.VisuCoreExtent;
         spatialResolution                   = sizeFOV ./ matrixFOV;
         info.PixelSpacing                   = spatialResolution;   
@@ -67,7 +79,13 @@ function convertToDICOM(imagePath,rawObj,destination)
         %% General metadata
         info.PatientID                      = visuParam.VisuSubjectId;
         info.PatientName.FamilyName         = visuParam.VisuSubjectId;
-        info.HeartRate                      = 60/((acqp.ACQ_repetition_time)/1000); % estimation
+
+        try
+            info.HeartRate = data.heartRate; % estimation of heart rate from self-gating
+        catch
+            info.HeartRate                  = 60/((acqp.ACQ_repetition_time)/1000); % estimation based on TR
+        end
+
         info.ImageType                      = 'ORIGINAL\PRIMARY\OTHER';
         info.Modality                       = 'MR';
         info.ScanningSequence               = 'RM\GR';

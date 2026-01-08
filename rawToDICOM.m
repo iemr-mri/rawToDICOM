@@ -13,7 +13,7 @@
 % Project name - e.g. AGORA
 pathStruct.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort1\week51';
+pathStruct.cohort          = 'AG_24\cohort3\week51';
 
 %% Preparation module - path settings
 % Root paths
@@ -25,12 +25,12 @@ pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
 pathStruct.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
-addpath('R:\Felles_PCRTP\functions\BrukerFiles');
+addpath('R:\Felles_PCRTP\functions\BrukerFiles_2019\pvtools');
 
 % adding functions/helpers folders which is in the same directory as this file
 addpath('functions\');
 addpath('helpers\');
-addpath('SG');
+addpath(genpath('self-gating'));
 
 %% 1 - sortRawData
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
