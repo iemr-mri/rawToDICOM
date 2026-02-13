@@ -46,7 +46,7 @@ CSvector        = repmat(CSvector,1,pm.repetitions);
 if pm.coilNum == 4
     pm.ratOrMouse  = "rat";
 elseif pm.coilNum == 2
-    pm.ratOrMoouse = "mouse";
+    pm.ratOrMouse = "mouse";
 end
 
 % Setup animation folders

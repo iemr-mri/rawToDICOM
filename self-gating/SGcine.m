@@ -98,10 +98,11 @@ redoSync        = false;
 if reconFinished == false
     for scan = 1:length(scanNames)
         % Check if this slice is already reconstructed
-        saveName = [folderName, expName, '\', char(scanNames(scan)), '\imageData.mat'];
-        if exist(saveName, 'file')
-            continue; % Skip to next scan
-        end
+        % Commented out: currently just making this decision for all slices beforehand 
+        % saveName = [folderName, expName, '\', char(scanNames(scan)), '\imageData.mat'];
+        % if exist(saveName, 'file')
+        %     continue; % Skip to next scan
+        % end
         
         %% Section 1: Read data
         longTic         = tic;      % Count the whole reconstruction process

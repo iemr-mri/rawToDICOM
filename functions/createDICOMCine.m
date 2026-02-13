@@ -1,10 +1,10 @@
-function createDICOMCine(pathStruct)
+function createDICOMCine(pm)
     % Input:
         % pathStruct: struct containing various path strings for folder structure
 
     %% 1 - Locating all CINE and SG files
     % struct with all cine scans for the subject
-    scansCINE       = dir(fullfile(pathStruct.sortedRoot, pathStruct.project,'CINE',pathStruct.cohort, pathStruct.subjName));
+    scansCINE       = dir(fullfile(pm.sortedRoot, pm.project,'CINE',pm.cohort, pm.subjName));
     scansCINE       = scansCINE(~ismember({scansCINE.name},{'..', '.'}));
 
     % identify any self-gated scans and segregate into two lists
@@ -17,12 +17,13 @@ function createDICOMCine(pathStruct)
 
     %% 2 - Perform reconstruction and DICOM conversion of each scan on scansCINE
     for scan = 1:length(scansCINE)
-        destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, 'CINE_DICOM', pathStruct.subjName, scansCINE(scan).name);
+        destination = fullfile(pm.DICOMRoot, pm.project, pm.cohort, 'CINE_DICOM', pm.subjName, scansCINE(scan).name);
         scanName    = scansCINE(scan).name;
 
         %% 2.1 Check existence of DICOM file
         existD      = existDICOM(destination, scanName);
-        if existD
+        % skips (continues) current scan if DICOM already exist AND forceDICOM is false
+        if existD && pm.forceDICOM == false 
             continue
         else
             disp('--------')
@@ -38,8 +39,8 @@ function createDICOMCine(pathStruct)
             continue
         end
         
-        %% 2.3 Check existence of .mat file
-        if ~exist(fullfile(imagePath, 'imageData.mat'), 'file')
+        %% 2.3 Reconstruction of kspace into imageData.mat
+        if ~exist(fullfile(imagePath, 'imageData.mat'), 'file') || pm.forceRecon == true
 
             %% 2.3.1 - Rearrange kspace data to [x, y, slices, movieFrames, flowEncDir, coils]
             try
@@ -77,44 +78,7 @@ function createDICOMCine(pathStruct)
     
     %% 3 - Perform reconstruction and DICOM conversion of each scan on scansSG with self-gating module
     if ~isempty(scansSG)
-        existSG = 0;
-        for scan = 1:length(scansSG)
-            destination = fullfile(pathStruct.DICOMRoot, pathStruct.project, pathStruct.cohort, 'CINE_DICOM', pathStruct.subjName, scansSG(scan).name);
-            scanName    = scansCINE(scan).name;
-
-            %% 3.1 Check existence of DICOM file
-            existD      = existDICOM(destination, scanName);
-            if existD
-                disp(['DICOM file already exist for ', scanName])
-                existSG = 1;
-            end
-        end
-        
-        if existSG
-            recon = reconCheck();
-        else
-            recon = 1;
-        end
-        
-        %% 3.1 Perform self-gating module on the whole stack of slices to process them together
-        if recon
-            SGcine(scansSG);
-    
-            for scan = 1:length(scansSG)
-                imagePath       = fullfile(scansSG(scan).folder,scansSG(scan).name);
-                try
-                    rawObj          = RawDataObject(imagePath, 'dataPrecision', 'double');
-                catch
-                    warning('rawObj not found for %s', imagePath)
-                    continue
-                end
-    
-                %% 3.3 Make DICOM files for each individual scan
-                disp('--------')
-                disp(['Converting ', scanName, ' to DICOM'])
-                convertToDICOM(imagePath, rawObj, destination)
-            end
-        end
+        SGmodule(scansSG,pm);
     end
 
     fclose('all');

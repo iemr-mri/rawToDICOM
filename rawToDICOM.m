@@ -7,18 +7,19 @@
  
 % Run whole script for the complete pipeline or each section as necessary
 
-%% User set parameters - project/cohort names and settings
+%% User set parameters - project/cohort names
 
-% Set up parameter struct (pm) for easy navigating
+% Set up parameter struct (pm) for path names
 % Project name - e.g. AGORA
 pm.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
 pm.cohort          = 'AB_24\cohort1\week 6';
 
-% Some flags for tailoring
-pm.skipSort        = false; % skips sortRawData
+%% Some flags for tailoring pipeline - flags are false by default for normal run
+pm.skipSort        = false; % skips sortRawData if you know you have all the files you need and don't want to crawl through folders
 pm.forceRecon      = false; % forces to do reconstruction even if imageData.mat exist
 pm.forceDICOM      = false; % overwrites existing DICOM files
+pm.forceSG         = false; % forces to do self-gating reconstruction even if one or more DICOM files already exist
 
 %% Preparation module - path settings
 % Root paths
@@ -41,10 +42,12 @@ addpath(genpath('self-gating'));
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
 % Sorts only data into folders based on keywords = {'FLASH','TPM', 't1', 'MRE', 'LGE', 'tagged', 'CINE'}
 
-sortRawData(pm);
+if ~pm.skipSort % sortRawData will only be called if skipSort is false
+    sortRawData(pm);
+end
 
-%% 2 - Locate CINE folder
-% Finds all scans in the CINE folder
+%% 2 - Locate CINE subject folders
+% Finds all subjects in the CINE folder
 subjectStruct              = dir(fullfile(pm.sortedRoot, pm.project, 'CINE', pm.cohort));
 subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
 
@@ -68,3 +71,18 @@ end
 
 disp('--------')
 disp(['DICOM files stored in ', pm.DICOMRoot,'\', pm.project,'\', pm.cohort])
+
+%% _________________________ pm struct overview ___________________________
+
+% pm.project    - project name (name of folder under R:\Projects
+% pm.cohort     - cohort name (name of folder structure each subject is in)
+% pm.rawRoot    - root of folder where raw data is
+% pm.sortedRoot - root of folder where data is initially sorted into
+% pm.DICOMRoot  - root of folder where DICOM data is saved
+%
+% pm.subjName   - folder name of current subject
+%
+% pm.skipSort   - boolean to set if sorting function is skipped
+% pm.forceRecon - boolean to force reconstruction and overwrite imageData.mat files
+% pm.forceDICOM - boolean to force DICOM conversion and overvwrite existing files
+% pm.forceSG    - boolean to force self-gating reconstruction
