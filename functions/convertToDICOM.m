@@ -7,7 +7,8 @@ function convertToDICOM(imagePath,rawObj,destination)
     
     data = load(fullfile(imagePath, 'imageData.mat'));
     imageData = data.imageData;
-    imageData = int16(imageData);
+    %% Image corrections
+    imageData    = imageCorrections(imageData, rawObj);
     
     %% Initializing metadata structs
     visuParam                           = readBrukerParamFile(fullfile(rawObj.Filespath.auto,'\pdata\1\visu_pars'));

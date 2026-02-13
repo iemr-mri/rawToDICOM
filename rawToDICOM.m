@@ -7,22 +7,27 @@
  
 % Run whole script for the complete pipeline or each section as necessary
 
-%% User set parameters - project and cohort names
+%% User set parameters - project/cohort names and settings
 
-% Set up pathStruct for easy navigating
+% Set up parameter struct (pm) for easy navigating
 % Project name - e.g. AGORA
-pathStruct.project         = 'AGORA';
+pm.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pathStruct.cohort          = 'AG_24\cohort3\week51';
+pm.cohort          = 'AB_24\cohort1\week 6';
+
+% Some flags for tailoring
+pm.skipSort        = false; % skips sortRawData
+pm.forceRecon      = false; % forces to do reconstruction even if imageData.mat exist
+pm.forceDICOM      = false; % overwrites existing DICOM files
 
 %% Preparation module - path settings
 % Root paths
 % This is where the raw data is collected
-pathStruct.rawRoot            = 'R:\DataTransfer from ParaVision';
+pm.rawRoot            = 'R:\DataTransfer from ParaVision';
 % This is where the raw data is sorted into
-pathStruct.sortedRoot         = 'R:\Preprocessed data from Paravision';
+pm.sortedRoot         = 'R:\Preprocessed data from Paravision';
 % This is where the DICOM files are saved
-pathStruct.DICOMRoot          = 'R:\Projects';
+pm.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
 addpath('R:\Felles_PCRTP\functions\BrukerFiles_2019\pvtools');
@@ -36,30 +41,30 @@ addpath(genpath('self-gating'));
 % Copies data from the project's cohort path in R:\DataTransfer to Paravision into R:\Preprocessed data from Paravision
 % Sorts only data into folders based on keywords = {'FLASH','TPM', 't1', 'MRE', 'LGE', 'tagged', 'CINE'}
 
-sortRawData(pathStruct);
+sortRawData(pm);
 
-%% 2 - Create DICOM files of CINE images
+%% 2 - Locate CINE folder
 % Finds all scans in the CINE folder
-subjectStruct              = dir(fullfile(pathStruct.sortedRoot, pathStruct.project, 'CINE', pathStruct.cohort));
+subjectStruct              = dir(fullfile(pm.sortedRoot, pm.project, 'CINE', pm.cohort));
 subjectStruct              = subjectStruct(~ismember({subjectStruct.name},{'..', '.'}));
 
 if isempty(subjectStruct)
-    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pathStruct.cohort)
+    warning('No CINE scans found for %s. Make sure project and cohort name is correct.', pm.cohort)
     return
 end
 
-%% 2.1 - Perfom operation for each scan
+%% 3 - Perfom reconstruction and DICOM conversion for each subject
 % Sort kspace into [x, y, slice, frame, MEG, coil]
 % Reconstructs CS data if undersampled
 % Converts into DICOM and saves in corresponding project folder under R:\Projects
 
-for scan = 1:length(subjectStruct)
-    pathStruct.subjName     = subjectStruct(scan).name;
-    disp('-------------------------------')
-    disp(['Creating DICOM files for ', pathStruct.subjName])
-    createDICOMCine(pathStruct)
+for subj = 1:length(subjectStruct)
+    pm.subjName     = subjectStruct(subj).name;
+    disp('--------')
+    disp(['Creating DICOM files for ', pm.subjName])
+    createDICOMCine(pm)
     disp('Completed.')
 end
 
-disp('-------------------------------')
-disp(['DICOM files stored in ', pathStruct.DICOMRoot,'\', pathStruct.project,'\', pathStruct.cohort])
+disp('--------')
+disp(['DICOM files stored in ', pm.DICOMRoot,'\', pm.project,'\', pm.cohort])
