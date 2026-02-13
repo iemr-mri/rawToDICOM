@@ -47,7 +47,7 @@ function sortRawData(pathStruct)
                 % If the scan name matches one of the keywords, we copy the data into the new folder, sorted by keyword 
                 for key = 1:length(keywords)
                     if contains(lower(scan_name), lower(keywords(key)))
-                        if contains(scan_name,'CS_191021')
+                        if contains(scan_name,'FLASH')
                             folderKey = 'CINE';
                         else
                             folderKey = upper(keywords{key});
@@ -60,6 +60,7 @@ function sortRawData(pathStruct)
                         else
                             disp([scan_name, ' already exist.'])
                         end
+                        continue
                     end
                 end
             end

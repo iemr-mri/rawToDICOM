@@ -8,16 +8,14 @@ function kspaceSorted = kspaceSort(rawObj)
     kspaceRaw   = squeeze(rawObj.data{1});
 
     movieFrames = rawObj.Method.PVM_NMovieFrames;
-
-    
     xData       = rawObj.Method.PVM_EncMatrix(1);
     yData       = rawObj.Method.PVM_EncMatrix(2);
     flowEncDir  = 1; % number of flow encoding directions
     slices      = rawObj.Method.PVM_SPackArrNSlices;
     coils       = rawObj.Method.PVM_EncNReceivers;
 
-    kspace      = reshape(kspaceRaw, [xData , coils, movieFrames, yData, slices, flowEncDir]);
-    kspace      = permute(kspace,[1 4 5 3 6 2]); % [x, y, slices, movieFrames, flowEncDir, coils]
+    kspace      = reshape(kspaceRaw, [coils, xData, movieFrames, yData, slices, flowEncDir]);
+    kspace      = permute(kspace,[2 4 5 3 6 1]); % [x, y, slices, movieFrames, flowEncDir, coils]
     
     %% 2) Rearrange if kspace is undersampled
     if isfield(rawObj.Method, "CSPhaseEncList")
@@ -31,8 +29,7 @@ function kspaceSorted = kspaceSort(rawObj)
                 for v = 1:flowEncDir
                     for t = 1:movieFrames
                         for c=1:coils
-                            kspace_us(:,CSPhaseEncList(count), k, t, v, c)  = kspaceRaw(:,count_withCoil); % [x, y, slices, movieFrames, flowEncDir, coils]
-                            count_withCoil                                  = count_withCoil + 1;
+                            kspace_us(:,CSPhaseEncList(count), k, t, v, c)  = kspaceRaw(c,:,count); % [x, y, slices, movieFrames, flowEncDir, coils]
                         end
                         count = count+1;
                     end
