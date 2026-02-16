@@ -10,8 +10,6 @@ rawScan             = RawDataObject(pathName, 'dataPrecision', 'double');
 
 pm.folderName       = folderName;
 pm.expName          = expName;
-pm.scanNumber       = num2str(scanName);
-pm.saveFolder       = ['CSSG reconstructed data\' pm.expName '\' pm.scanNumber];
 pm.CSacceleration   = rawScan.Method.CSacceleration;
 pm.midlineRate      = rawScan.Method.MidlineRate;
 pm.sliceNum         = rawScan.Method.PVM_SPackArrNSlices;
@@ -49,16 +47,6 @@ elseif pm.coilNum == 2
     pm.ratOrMouse = "mouse";
 end
 
-% Setup animation folders
-pm.animationFolder = 'Animations/';
-if ~(exist(pm.animationFolder, 'dir') == 7)
-    mkdir(pm.animationFolder);
-end
-
-if ~(exist([pm.animationFolder pm.expName], 'dir') == 7)
-    mkdir([pm.animationFolder pm.expName]);
-end
-
 % Partition scan
 rawWithMid      = squeeze(rawScan.data{1});
 if scanPartioner > 1
@@ -85,13 +73,6 @@ while countUp <= pm.movieFrames
     countUp             = countUp + pm.midlineRate;
 end
 
-% Visualize rawWithMid
-if visualSwitch == true
-    figure(1);
-    imagesc(abs(squeeze(rawWithMid(1,:,1:pm.movieFrames*pm.kyLines)))'); % Arbitarily chose coil 1
-    title("Rawdata unshuffled");
-end
-
 % Shuffle data into frame-by-frame and rep-by-rep images
 tempRaw = reshape(rawWithMid, [pm.coilNum, pm.kxPixels, pm.movieFrames, pm.kyLines, pm.repetitions]); % [pm.kxPixels, pm.movieFrames, pm.kyLines, pm.repetitions]);
 tempRaw = permute(tempRaw, [1,2,4,3,5]); % [coils, Pixels, lines, movieFrames, repetitions]
@@ -114,48 +95,6 @@ for rep = 1:pm.repetitions
     end
 end
 
-if visualSwitch == true
-    for frame = 1:pm.movieFrames
-        for rep = 1:pm.repetitions            
-            figure(2);
-            imagesc(abs(squeeze(coilRawWithMid(1,:,:,frame,rep)))');
-            title(['CoilRawWithMid - Frame: ' num2str(frame) ' Rep: ' num2str(rep)]);
-        
-            figure(3);
-            imagesc(abs(squeeze(midlines(1,:,:)))');
-            title("midlines");
-
-            % pause(0.5);
-        end
-    end
-end
-
-coilMagImages   = zeros(pm.coilNum, pm.kxPixels, pm.kyLines, pm.movieFrames, pm.repetitions);
-totalMagImage   = zeros(pm.kxPixels, pm.kyLines, pm.movieFrames);
-
-% Create images
-for rep = 1:pm.repetitions
-    for frame = 1:pm.movieFrames
-        for coil = 1:pm.coilNum
-            coilMagImages(coil,:,:,frame,rep)   = abs(ifftshift(ifft2(fftshift(squeeze(coilRawNoMid(coil,:,:,frame,rep))))));
-            totalMagImage(:,:,frame)            = squeeze(totalMagImage(:,:,frame)) + squeeze(coilMagImages(coil,:,:,frame,rep));
-    
-            % if visualSwitch == true
-            %     figure(4);
-            %     imagesc(squeeze(coilMagImages(coil,:,:,frame,rep)));
-            %     titleString = ["Coil: " num2str(coil) " Frame: " num2str(frame) " Rep: " num2str(rep)];
-            %     title(titleString);
-            %     pause(0.05);
-            % end
-        end
-    end
-end
-
-if visualSwitch == true
-    figure(5);
-    imagesc(squeeze(totalMagImage(:,:,1)));
-    title("Combined");
-end
 
 disp(['Section 1: SGreader - Finished in ' num2str(toc) ' seconds.'])
 end % Function end
