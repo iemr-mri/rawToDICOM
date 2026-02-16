@@ -99,7 +99,7 @@ if reconFinished == false
     for scan = 1:length(scanNames)
         % Check if this slice is already reconstructed
         % Commented out: currently just making this decision for all slices beforehand 
-        % saveName = [folderName, expName, '\', char(scanNames(scan)), '\imageData.mat'];
+        saveName = [folderName, expName, '\', char(scanNames(scan)), '\imageData.mat'];
         % if exist(saveName, 'file')
         %     continue; % Skip to next scan
         % end
