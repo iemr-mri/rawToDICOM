@@ -13,7 +13,7 @@
 % Project name - e.g. AGORA
 pm.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pm.cohort          = 'AB_24\cohort1\week 6';
+pm.cohort          = 'AG_24\Cohort3\week51andweek2';
 
 %% Some flags for tailoring pipeline - flags are false by default for normal run
 pm.skipSort        = false; % skips sortRawData if you know you have all the files you need and don't want to crawl through folders
@@ -31,7 +31,8 @@ pm.sortedRoot         = 'R:\Preprocessed data from Paravision';
 pm.DICOMRoot          = 'R:\Projects';
 
 % adding Bruker functions for reading raw files
-addpath('R:\Felles_PCRTP\functions\BrukerFiles_2019\pvtools');
+addpath(genpath('R:\Felles_PCRTP\functions\BrukerFiles_2019\pvtools'));
+
 
 % adding functions/helpers folders which is in the same directory as this file
 addpath('functions\');

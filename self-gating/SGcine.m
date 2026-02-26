@@ -90,7 +90,7 @@ scanNames                   = [SAXnames, LAXnames];
 
 % Set pipeline parameters
 reconFinished   = false; % If we've already reconstructed the files, just load them and skip to slice synchronizer
-visualSwitch    = false;
+visualSwitch    = false; % Mostly removed. See self-gating branch for original functionality. - HEVS
 showRolling     = false;
 redoSync        = false;
 
@@ -168,7 +168,7 @@ if reconFinished == false
         imageData = reshape(imageData, [size(imageData,1) size(imageData,2) 1 size(imageData,3)]);
         heartRate = pm.cardiacFreq*60;
         save(saveName,"imageData", "heartRate");
-        disp(['Reconstruction of ' pm.expName ' E' pm.scanNumber ' completed in ' num2str(toc(longTic)) ' seconds.'])
+        disp(['Reconstruction of ' pm.expName ' - ' scanNames(scan) ' completed in ' num2str(toc(longTic)) ' seconds.'])
     end
 end
 

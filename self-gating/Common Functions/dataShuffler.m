@@ -80,7 +80,7 @@ frameFillFigNum = 300;
 if pm.showFilling == true
     visualizeFrameFilling(frameFillFigNum);
 end
-CSGIFname = [pm.animationFolder pm.expName '/' num2str(pm.scanNumber) ' scanTime ' num2str(round(pm.scanTime))];
+CSGIFname = [pm.expName '/scanTime ' num2str(round(pm.scanTime))];
 CSGIFname = [CSGIFname ' ' char(pm.absOrRel) ' breath[' num2str(pm.breathRange(1)) ',' num2str(pm.breathRange(2)) ']'];
 CSGIFname = [CSGIFname ' frames ' num2str(pm.newFrameNum) ' CSdist.gif'];
 
@@ -262,7 +262,7 @@ disp(['Section 7: Datashuffler finished in ' num2str(toc) ' seconds.' newline])
 
 % Visualize averaged data
 imageVisFigNum     = 200;
-combinedGIF = [pm.animationFolder pm.expName '/' num2str(pm.scanNumber) ' scanTime ' num2str(round(pm.scanTime))];
+combinedGIF = [pm.expName '/scanTime ' num2str(round(pm.scanTime))];
 combinedGIF = [combinedGIF ' ' char(pm.absOrRel)];
 combinedGIF = [combinedGIF ' breath[' num2str(pm.breathRange(1)) ',' num2str(pm.breathRange(2)) ']'];
 combinedGIF = [combinedGIF ' frames ' num2str(pm.newFrameNum)];

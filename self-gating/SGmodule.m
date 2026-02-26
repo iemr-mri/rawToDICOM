@@ -4,7 +4,7 @@ function SGmodule(scansSG, pm)
     n_SG = 0;
     for scan = 1:length(scansSG)
         destination = fullfile(pm.DICOMRoot, pm.project, pm.cohort, 'CINE_DICOM', pm.subjName, scansSG(scan).name);
-        scanName    = scansCINE(scan).name;
+        scanName    = scansSG(scan).name;
     
         existD      = existDICOM(destination, scanName);
         if existD
@@ -27,7 +27,7 @@ function SGmodule(scansSG, pm)
     
         for scan = 1:length(scansSG)
             destination = fullfile(pm.DICOMRoot, pm.project, pm.cohort, 'CINE_DICOM', pm.subjName, scansSG(scan).name);
-            scanName    = scansCINE(scan).name;
+            scanName    = scansSG(scan).name;
             imagePath       = fullfile(scansSG(scan).folder,scansSG(scan).name);
             
             try

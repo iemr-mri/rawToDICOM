@@ -13,33 +13,6 @@ pm.numSlices     = 1;
 figNumStart      = 400;
 timestep         = 7.5/pm.newFrameNum;
 
-if visualSwitch == true
-    % Setup figures for later usage
-    figureSetup(figNumStart);
-
-    combGIFname     = [pm.animationFolder pm.expName '/' num2str(pm.scanNumber) ' scanTime ' num2str(round(pm.scanTime)) ' ' char(pm.absOrRel)];
-    combGIFname     = [combGIFname ' breath[' num2str(pm.breathRange(1)) ',' num2str(pm.breathRange(2)) ']'];
-    combGIFname     = [combGIFname ' frames ' num2str(pm.newFrameNum) ' CSrecon'];
-    reconGIFname    = [combGIFname ' process'];
-    phaseGIFname    = [combGIFname ' phase'];
-    combGIFname     = [combGIFname '.gif'];
-    reconGIFname    = [reconGIFname '.gif'];
-    phaseGIFname    = [phaseGIFname '.gif'];
-
-    if exist(combGIFname, 'file')
-        delete(combGIFname);
-        disp([combGIFname ' deleted for new gif.'])
-    end
-    if exist(reconGIFname, 'file')
-        delete(reconGIFname);
-        disp([reconGIFname ' deleted for new gif.'])
-    end
-    if exist(phaseGIFname, 'file')
-        delete(phaseGIFname);
-        disp([phaseGIFname ' deleted for new gif.'])
-    end
-end
-
 % Basic matrices
 inputkSpace         = reshape(inputkSpace,[pm.coilNum, pm.actualMatrix(1), pm.actualMatrix(2), pm.numSlices, pm.newFrameNum, pm.MechanicalPhases, pm.MEGdirections]);
 hasDataMask         = inputkSpace ~= 0;          % Undersampling mask
@@ -61,13 +34,6 @@ for slice = 1:pm.numSlices
                 end
             end
     
-            if visualSwitch == true && pm.showCSprocess == true
-                % Visualize original data
-                origkSpace = squeeze(inputkSpace(coil,:,:,slice,:,mechPhase,MEG));
-                origRealIm = squeeze(tempRealImages(coil,:,:,slice,:,mechPhase,MEG));
-                CSvisualizer(figNumStart,coil-1,squeeze(origkSpace(:,:,pm.selectFrame)),"kspace");
-                CSvisualizer(figNumStart,coil-1+4,squeeze(origRealIm(:,:,pm.selectFrame)),"realspace");
-            end
     
             % Matrix for monitoring the differences between iterations
             diffRMS = zeros(pm.MEGdirections, pm.maxIter);
@@ -109,17 +75,6 @@ for slice = 1:pm.numSlices
                     adjustedkSpace                       = squeeze(inputkSpace(coil,:,:,slice,:,mechPhase,MEG)) + kspaceAfterThresh .* squeeze(noDataMask(coil,:,:,slice,:,mechPhase,MEG));
                     tempRealImages(coil,:,:,slice,:,mechPhase,MEG) = squeeze(ifft2c(adjustedkSpace));
     
-                    if visualSwitch == true && pm.showCSprocess == true
-                        % Visualize
-                        if mechPhase == 1
-                            if coil == 1 % Arbitrarily selected the best quality coil
-                                GIFmaker(figNumStart + coil-1+4, reconGIFname, timestep*3);
-                            end
-                            CSvisualizer(figNumStart,coil-1,squeeze(adjustedkSpace(:,:,pm.selectFrame)),"kspace");
-                            CSvisualizer(figNumStart,coil-1+4,squeeze(tempRealImages(coil,:,:,slice,pm.selectFrame,mechPhase,MEG)),"realspace");
-                        end
-                        pause(timestep/5);
-                    end
                 end
                 
                 % Iteration stops when the RMS difference between an iteration 
@@ -133,10 +88,6 @@ for slice = 1:pm.numSlices
                     % end
                     if abs(diffCurrent/diffFirst) < pm.CSdiffThresh
                         disp(['Coil: ' num2str(coil) ' mechPhase: ' num2str(mechPhase) ' MEG: ' num2str(MEG) ' - Iter:' num2str(iter) ' - Current Diff = ' num2str(diffCurrent)  ' - % of first iteration: ' num2str(100*diffCurrent/diffFirst) '%']);
-                        if visualSwitch == true
-                            CSvisualizer(figNumStart,coil-1,squeeze(adjustedkSpace(:,:,pm.selectFrame)),"kspace");
-                            CSvisualizer(figNumStart,coil-1+4,squeeze(tempRealImages(coil,:,:,slice,pm.selectFrame,mechPhase,MEG)),"realspace");
-                        end
                         break
                     end
                 end
@@ -170,38 +121,6 @@ for frame = 1:pm.newFrameNum
             for mechPhase = 1:pm.MechanicalPhases
                 % Perform the FFT on the x-y dimension of each slice
                 combReconkSpace(:,:,slice,frame,mechPhase,MEG) = fftshift(fftn(ifftshift(combRealSpace(:,:,slice,frame,mechPhase,MEG))));
-                
-                % Visualize and record
-                if visualSwitch == true
-                    % All mechPhases (should) have the same magnitude
-                    if mechPhase == 1
-                        figure(figNumStart + 8);
-                        imagesc(abs(squeeze(combRealSpace(:,:,slice,frame,mechPhase,MEG))));
-                        clim([0,upperBright]);
-                        title(sprintf('Magnitude Slice %d, Frame %d, mechPhase %d, MEG %d', slice, frame, mechPhase, MEG));
-                        colormap gray;
-                        colorbar;
-                        GIFmaker(figure(figNumStart+8), combGIFname, timestep);
-                    end
-
-                    figure(figNumStart + 9);
-                    complexImage = fftshift(ifftn(ifftshift(ifftshift(squeeze(reconkSpace(1,:,:,slice,frame,mechPhase,MEG)),1),2)));
-                    imagesc(angle(complexImage));
-                    title(sprintf('Phase Coil 1 Slice %d, Frame %d, mechPhase %d, MEG %d', slice, frame, mechPhase, MEG));
-                    colormap parula;
-                    colorbar;
-
-                    % We only record one arbitrary frame
-                    if frame == round(pm.newFrameNum/2)
-                        GIFmaker(figure(figNumStart+9), phaseGIFname, timestep);
-                    end
-    
-                    figure(figNumStart + 10);
-                    imagesc(abs(squeeze(combReconkSpace(:,:,slice,frame,MEG)))');
-                    title(sprintf('k-Space Slice %d, Frame %d, mechPhase %d, MEG %d', slice, frame, mechPhase, MEG));
-                    colormap parula;
-                    pause(timestep/pm.MechanicalPhases);
-                end
             end
         end
     end
