@@ -1,6 +1,6 @@
 function sortedStruct = slicePositionSort(unsortedStruct)
 % Takes a struct of scans and sorts them according to the slice position found in the meta data files.
-    positionList = zeros(length(unsortedStruct(2)));
+    positionList = zeros(length(unsortedStruct));
     for scan=1:length(unsortedStruct)
         imagePath          = fullfile(unsortedStruct(scan).folder,unsortedStruct(scan).name);
         rawObj             = RawDataObject(imagePath, 'dataPrecision', 'double');

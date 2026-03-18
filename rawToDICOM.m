@@ -13,10 +13,10 @@
 % Project name - e.g. AGORA
 pm.project         = 'AGORA';
 % Path to cohort inside project - e.g. AG_9\cohort1\week43
-pm.cohort          = 'AG_24\Cohort3\week51andweek2';
+pm.cohort          = 'AG_24\cohort10\week 12 (2026)';
 
 %% Some flags for tailoring pipeline - flags are false by default for normal run
-pm.skipSort        = false; % skips sortRawData if you know you have all the files you need and don't want to crawl through folders
+pm.skipSort        = true; % skips sortRawData if you know you have all the files you need and don't want to crawl through folders
 pm.forceRecon      = false; % forces to do reconstruction even if imageData.mat exist
 pm.forceDICOM      = false; % overwrites existing DICOM files
 pm.forceSG         = false; % forces to do self-gating reconstruction even if one or more DICOM files already exist
